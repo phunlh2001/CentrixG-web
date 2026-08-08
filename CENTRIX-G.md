@@ -157,19 +157,19 @@ release/win-unpacked/CentrixG.exe
 Nút tải app trên web đang trỏ tới:
 
 ```text
-/downloads/CentrixG-Setup-0.0.0.exe
+/downloads/CentrixG-Setup.exe
 ```
 
 File nguồn trong project:
 
 ```text
-public/downloads/CentrixG-Setup-0.0.0.exe
+public/downloads/CentrixG-Setup.exe
 ```
 
 Sau khi build lại installer desktop, nếu muốn web tải bản mới nhất, copy file mới vào:
 
 ```text
-public/downloads/CentrixG-Setup-0.0.0.exe
+public/downloads/CentrixG-Setup.exe
 ```
 
 Sau đó build web lại:
@@ -181,8 +181,21 @@ yarn build:web
 Kiểm tra file có mặt trong:
 
 ```text
-dist/downloads/CentrixG-Setup-0.0.0.exe
+dist/downloads/CentrixG-Setup.exe
 ```
+
+## Deploy Netlify
+
+Project đã được cấu hình sẵn để deploy tự động lên Netlify:
+
+- **Build Command**: `yarn build:netlify` (hoặc `npm run build:netlify`)
+- **Publish Directory**: `dist`
+- **SPA Routing**: `public/_redirects` và `netlify.toml` đã được tạo tự động với rule `/* /index.html 200` để đảm bảo React Router không bị 404 khi refresh trang.
+- **Environment Variables trên Netlify**: Cấu hình các biến trong `Site settings > Environment variables`:
+  - `VITE_BASE_API_URL`: URL Backend API (ví dụ `https://centrixg.onrender.com/api`)
+  - `VITE_APP_TARGET`: `web`
+  - `VITE_ENABLE_WEB`: `true`
+  - `VITE_ENABLE_DESKTOP`: `false`
 
 ## 2. Nguyên Tắc, Tree, Convention Code
 
@@ -205,7 +218,7 @@ centrix-g-v2/
     preload.ts
   public/
     downloads/
-      CentrixG-Setup-0.0.0.exe
+      CentrixG-Setup.exe
     favicon.ico
     favicon_io/
   src/
