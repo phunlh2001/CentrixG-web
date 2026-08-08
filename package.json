@@ -1,0 +1,83 @@
+{
+  "name": "rebuild",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./out/main/index.cjs",
+  "scripts": {
+    "dev": "npm run dev:web",
+    "dev:web": "npm run dist:desktop && set VITE_APP_TARGET=web&& set VITE_ENABLE_WEB=true&& set VITE_ENABLE_DESKTOP=false&& vite",
+    "dev:desktop": "set VITE_APP_TARGET=desktop&& set VITE_ENABLE_WEB=false&& set VITE_ENABLE_DESKTOP=true&& electron-vite dev",
+    "build": "npm run build:web",
+    "build:web": "npm run dist:desktop && set VITE_APP_TARGET=web&& set VITE_ENABLE_WEB=true&& set VITE_ENABLE_DESKTOP=false&& tsc -b && vite build",
+    "build:desktop": "set VITE_APP_TARGET=desktop&& set VITE_ENABLE_WEB=false&& set VITE_ENABLE_DESKTOP=true&& electron-vite build",
+    "dist:desktop": "set VITE_APP_TARGET=desktop&& set VITE_ENABLE_WEB=false&& set VITE_ENABLE_DESKTOP=true&& electron-vite build && electron-builder && npm run prepare:desktop-download",
+    "prepare:desktop-download": "node -e \"const fs = require('fs'); const path = require('path'); const rel = 'release'; const tgt = 'public/downloads'; if (!fs.existsSync(rel)) { console.error('❌ release directory not found'); process.exit(1); } const exe = fs.readdirSync(rel).find(f => f.endsWith('.exe') && !f.includes('uninstaller')); if (exe) { fs.mkdirSync(tgt, { recursive: true }); fs.copyFileSync(path.join(rel, exe), path.join(tgt, 'CentrixG-Setup.exe')); fs.copyFileSync(path.join(rel, exe), path.join(tgt, 'CentrixG-Setup-0.0.0.exe')); console.log('✓ Desktop installer copied:', exe, '-> public/downloads/CentrixG-Setup.exe'); } else { console.error('❌ No .exe file found in release directory'); }\"",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "postinstall": "node node_modules/electron/install.js"
+  },
+  "build": {
+    "appId": "com.centrixg.desktop",
+    "productName": "CentrixG",
+    "icon": "public/icon.ico",
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "artifactName": "CentrixG-Setup-${version}.${ext}",
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico"
+    }
+  },
+  "dependencies": {
+    "@radix-ui/react-select": "^2.3.1",
+    "@stripe/stripe-js": "^9.9.0",
+    "axios": "^1.18.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "electron-vite": "^5.0.0",
+    "i18next": "^26.3.1",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "lucide-react": "^1.18.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.79.0",
+    "react-i18next": "^17.0.8",
+    "react-router-dom": "6.30.3",
+    "react-toastify": "^11.1.0",
+    "swiper": "^12.2.0",
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0"
+  }
+}
