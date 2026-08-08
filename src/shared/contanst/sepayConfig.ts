@@ -16,13 +16,13 @@ export const SEPAY_ENV_KEYS = {
 export const SEPAY_CONFIG = {
   bankCode: import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "MBBank",
   bankName: import.meta.env[SEPAY_ENV_KEYS.BANK_NAME] || "MB Bank (Ngân hàng Quân Đội)",
-  accountNumber: import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "0123456789",
-  accountName: import.meta.env[SEPAY_ENV_KEYS.ACC_NAME] || "CENTRIX G STORE",
+  accountNumber: import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "",
+  accountName: import.meta.env[SEPAY_ENV_KEYS.ACC_NAME] || "",
   template: import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "compact",
   orderPrefix: import.meta.env[SEPAY_ENV_KEYS.ORDER_PREFIX] || "CG",
   timeoutSeconds: Number(import.meta.env[SEPAY_ENV_KEYS.TIMEOUT_SECONDS]) || 900,
 
-  // Sensitive Webhook & API Key Constants
+  // Sensitive Webhook & API Key Constants (Loaded strictly via environment variables)
   apiKey: import.meta.env[SEPAY_ENV_KEYS.API_KEY] || "",
   webhookSecret: import.meta.env[SEPAY_ENV_KEYS.WEBHOOK_SECRET] || "",
   apiUrl: import.meta.env[SEPAY_ENV_KEYS.API_URL] || "https://my.sepay.vn/userapi",
@@ -31,7 +31,7 @@ export const SEPAY_CONFIG = {
 
   getQrUrl: (amount: number, orderCode: string) => {
     const bankCode = import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "MBBank";
-    const accNumber = import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "0123456789";
+    const accNumber = import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "";
     const template = import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "compact";
     return `https://qr.sepay.vn/img?bank=${encodeURIComponent(
       bankCode,

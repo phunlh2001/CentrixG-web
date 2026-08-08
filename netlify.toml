@@ -1,5 +1,4 @@
 [build]
-  SECRETS_SCAN_ENABLED = false
   command = "npm run build:netlify"
   publish = "dist"
 
