@@ -10,7 +10,6 @@
     "dev:desktop": "npx cross-env VITE_APP_TARGET=desktop VITE_ENABLE_WEB=false VITE_ENABLE_DESKTOP=true electron-vite dev",
     "build": "npm run build:web",
     "build:web": "npm run dist:desktop && npx cross-env VITE_APP_TARGET=web VITE_ENABLE_WEB=true VITE_ENABLE_DESKTOP=false tsc -b && vite build",
-    "build:netlify": "npx cross-env VITE_APP_TARGET=web VITE_ENABLE_WEB=true VITE_ENABLE_DESKTOP=false tsc -b && vite build",
     "build:desktop": "npx cross-env VITE_APP_TARGET=desktop VITE_ENABLE_WEB=false VITE_ENABLE_DESKTOP=true electron-vite build",
     "dist:desktop": "npx cross-env VITE_APP_TARGET=desktop VITE_ENABLE_WEB=false VITE_ENABLE_DESKTOP=true electron-vite build && electron-builder && npm run prepare:desktop-download",
     "prepare:desktop-download": "node -e \"const fs = require('fs'); const path = require('path'); const rel = 'release'; const tgt = 'public/downloads'; if (!fs.existsSync(rel)) { console.error('❌ release directory not found'); process.exit(1); } const exe = fs.readdirSync(rel).find(f => f.endsWith('.exe') && !f.includes('uninstaller')); if (exe) { fs.mkdirSync(tgt, { recursive: true }); fs.copyFileSync(path.join(rel, exe), path.join(tgt, 'CentrixG-Setup.exe')); console.log('✓ Desktop installer copied:', exe, '-> public/downloads/CentrixG-Setup.exe'); } else { console.error('❌ No .exe file found in release directory'); }\"",
