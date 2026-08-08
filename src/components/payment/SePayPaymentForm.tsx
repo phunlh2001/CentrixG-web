@@ -54,7 +54,7 @@ export default function SePayPaymentForm({
     if (timeLeft <= 0) return;
 
     let isSubscribed = true;
-    const pollInterval = SEPAY_CONFIG.pollIntervalMs || 3000;
+    const pollInterval = SEPAY_CONFIG.pollIntervalMs || 5000;
 
     const checkTransactionStatus = async () => {
       try {

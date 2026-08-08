@@ -90,10 +90,11 @@ ipcMain.handle("install-app", async (_, appId: number | string) => {
     };
 
     // 30-second execution wait timer (max 60 seconds)
+    const INSTALL_APP_WAIT_MS = 30 * 1000;
     const timer = setTimeout(() => {
       console.log("[IPC install-app] 30s timeout reached. Evaluating logs...");
       evaluateAndResolve();
-    }, 30000);
+    }, INSTALL_APP_WAIT_MS);
 
     if (child) {
       child.on("close", (code) => {

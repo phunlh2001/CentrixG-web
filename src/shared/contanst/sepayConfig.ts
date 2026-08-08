@@ -14,25 +14,25 @@ export const SEPAY_ENV_KEYS = {
 } as const;
 
 export const SEPAY_CONFIG = {
-  bankCode: import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "MBBank",
-  bankName: import.meta.env[SEPAY_ENV_KEYS.BANK_NAME] || "MB Bank (Ngân hàng Quân Đội)",
+  bankCode: import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "",
+  bankName: import.meta.env[SEPAY_ENV_KEYS.BANK_NAME] || "",
   accountNumber: import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "",
   accountName: import.meta.env[SEPAY_ENV_KEYS.ACC_NAME] || "",
-  template: import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "compact",
+  template: import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "",
   orderPrefix: import.meta.env[SEPAY_ENV_KEYS.ORDER_PREFIX] || "CG",
   timeoutSeconds: Number(import.meta.env[SEPAY_ENV_KEYS.TIMEOUT_SECONDS]) || 900,
 
   // Sensitive Webhook & API Key Constants (Loaded strictly via environment variables)
   apiKey: import.meta.env[SEPAY_ENV_KEYS.API_KEY] || "",
   webhookSecret: import.meta.env[SEPAY_ENV_KEYS.WEBHOOK_SECRET] || "",
-  apiUrl: import.meta.env[SEPAY_ENV_KEYS.API_URL] || "https://my.sepay.vn/userapi",
+  apiUrl: import.meta.env[SEPAY_ENV_KEYS.API_URL] || "",
   webhookUrl: import.meta.env[SEPAY_ENV_KEYS.WEBHOOK_URL] || "",
-  pollIntervalMs: Number(import.meta.env[SEPAY_ENV_KEYS.POLL_INTERVAL_MS]) || 3000,
+  pollIntervalMs: Number(import.meta.env[SEPAY_ENV_KEYS.POLL_INTERVAL_MS]) || 5000,
 
   getQrUrl: (amount: number, orderCode: string) => {
-    const bankCode = import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "MBBank";
+    const bankCode = import.meta.env[SEPAY_ENV_KEYS.BANK_CODE] || "";
     const accNumber = import.meta.env[SEPAY_ENV_KEYS.ACC_NUMBER] || "";
-    const template = import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "compact";
+    const template = import.meta.env[SEPAY_ENV_KEYS.TEMPLATE] || "";
     return `https://qr.sepay.vn/img?bank=${encodeURIComponent(
       bankCode,
     )}&acc=${encodeURIComponent(accNumber)}&template=${encodeURIComponent(
