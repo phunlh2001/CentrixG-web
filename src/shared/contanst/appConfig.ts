@@ -2,7 +2,7 @@ export const APP_CONFIG = {
   name: "Centrix G",
   download: {
     slug: "download",
-    desktopInstaller: "/downloads/CentrixG-Setup-0.0.0.exe",
+    desktopInstaller: "/downloads/CentrixG-Setup.exe",
     label: {
       vi: "Tải xuống",
       en: "Download",
