@@ -3,7 +3,6 @@ import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import IntroPage from "./pages/IntroPage";
 import ContactPage from "./pages/ContactPage";
-import BlogPage from "./pages/BlogPage";
 import CartPage from "./pages/CartPage";
 import PaymentPage from "./pages/PaymentPage";
 import LibraryPage from "./pages/LibraryPage";
@@ -27,7 +26,7 @@ function App() {
       <Route path="/home" element={<HomePage />} />
       <Route path="/introduction" element={<IntroPage />} />
       <Route path="/contact" element={<ContactPage />} />
-      <Route path="/blog" element={<BlogPage />} />
+      {/* <Route path="/blog" element={<BlogPage />} /> */}
       <Route path="/cart" element={<CartPage />} />
       {!isDesktop && <Route path="/download" element={<DownloadPage />} />}
       <Route

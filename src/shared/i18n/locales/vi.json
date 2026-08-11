@@ -489,5 +489,18 @@
     "title": "Không tìm thấy trang",
     "sub": "Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.",
     "back": "Quay lại Trang chủ"
+  },
+  "categoryPage": {
+    "eyebrow": "DANH MỤC GAME",
+    "title": "Khám phá danh mục game",
+    "catalogTitle": "Danh sách game",
+    "searchPlaceholder": "Tìm kiếm thể loại...",
+    "allCategories": "Tất cả thể loại",
+    "selectedCategories": "Đã chọn {{count}} thể loại",
+    "clearFilters": "Xóa bộ lọc",
+    "showMore": "+ Xem thêm {{count}} thể loại",
+    "showLess": "Thu gọn",
+    "noCategories": "Không tìm thấy thể loại phù hợp",
+    "noProducts": "Không có sản phẩm nào thuộc thể loại đã chọn"
   }
 }

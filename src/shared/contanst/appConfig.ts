@@ -79,14 +79,14 @@ export const MEGA_MENU = {
       zh: "分类",
     },
   },
-  events: {
-    slug: "blog",
-    label: {
-      vi: "Blog",
-      en: "Blog",
-      zh: "博客",
-    },
-  },
+  // events: {
+  //   slug: "blog",
+  //   label: {
+  //     vi: "Blog",
+  //     en: "Blog",
+  //     zh: "博客",
+  //   },
+  // },
   contact: {
     slug: "contact",
     label: {

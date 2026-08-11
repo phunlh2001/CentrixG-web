@@ -489,5 +489,18 @@
     "title": "未找到页面",
     "sub": "您正在寻找的页面不存在或已被移动。",
     "back": "返回首页"
+  },
+  "categoryPage": {
+    "eyebrow": "游戏分类",
+    "title": "探索游戏分类",
+    "catalogTitle": "游戏目录",
+    "searchPlaceholder": "搜索分类...",
+    "allCategories": "所有分类",
+    "selectedCategories": "已选择 {{count}} 个分类",
+    "clearFilters": "清除筛选",
+    "showMore": "+ 显示更多 ({{count}})",
+    "showLess": "收起",
+    "noCategories": "未找到匹配的分类",
+    "noProducts": "没有符合选中分类的游戏"
   }
 }

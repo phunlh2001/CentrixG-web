@@ -1,6 +1,7 @@
 export { CartProvider, useCart, type CartItem } from "./cart";
 export { APP_CONFIG, CATEGORIES, LOCALES, MEGA_MENU } from "./contanst/appConfig";
 export { SEPAY_CONFIG } from "./contanst/sepayConfig";
+export { useDebounce } from "./hooks/useDebounce";
 export { type LanguageCode } from "./i18n/config";
 export {
   type BaseLookupItem,
