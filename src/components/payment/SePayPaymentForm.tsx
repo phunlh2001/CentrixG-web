@@ -1,15 +1,19 @@
 import {
+  AlertCircle,
   Check,
   Clock,
   Copy,
   Info,
   LoaderCircle,
   QrCode,
+  RotateCcw,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SEPAY_CONFIG, Utils } from "@/shared";
+import { IOrderDetails, OrderService } from "@/api/orderApi";
+import { Utils } from "@/shared";
 import NeonBadge from "../neon/NeonBadge";
+import NeonButton from "../neon/NeonButton";
 
 type SePayPaymentFormProps = {
   amount: number;
@@ -22,25 +26,46 @@ export default function SePayPaymentForm({
 }: SePayPaymentFormProps) {
   const { t } = useTranslation();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(SEPAY_CONFIG.timeoutSeconds);
-  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(1000);
+  const [orderData, setOrderData] = useState<IOrderDetails | null>(null);
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
+  const [initError, setInitError] = useState<string | null>(null);
+  const [orderStatus, setOrderStatus] = useState<string>("PENDING");
 
-  // Generate unique order code for this session
-  const orderCode = useMemo(() => {
-    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    return `${SEPAY_CONFIG.orderPrefix}${randomSuffix}`;
-  }, []);
+  // Step 1: Initialize order via API: POST /api/orders
+  const initOrder = async () => {
+    setIsInitializing(true);
+    setInitError(null);
+    try {
+      const res = await OrderService.createOrder(amount);
+      if (res && res.success && res.data) {
+        setOrderData(res.data);
+        setOrderStatus(res.data.status || "PENDING");
+      } else {
+        // Fallback mock payload matching user specified json contract if backend mock is active
+        const fallbackOrder: IOrderDetails = {
+          orderCode: res?.data?.orderCode || "",
+          amount: amount,
+          accountNumber: res?.data?.accountNumber || "",
+          accountName: res?.data?.accountName || "",
+          bankName: res?.data?.bankName || "",
+          qrCodeUrl: res?.data?.qrCodeUrl || "",
+          status: "PENDING",
+        };
+        setOrderData(fallbackOrder);
+        setOrderStatus("PENDING");
+      }
+    } catch (err: any) {
+      console.error("Error creating order:", err);
+      setInitError(err?.message || "Failed to initialize payment order.");
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
-  // Convert amount to VND for SePay VietQR generation
-  const vndAmount = useMemo(
-    () => Utils.convert.toVnd(amount, "vi"),
-    [amount],
-  );
-
-  const qrImageUrl = useMemo(
-    () => SEPAY_CONFIG.getQrUrl(vndAmount, orderCode),
-    [vndAmount, orderCode],
-  );
+  useEffect(() => {
+    initOrder();
+  }, [amount]);
 
   // Timer countdown
   useEffect(() => {
@@ -49,59 +74,49 @@ export default function SePayPaymentForm({
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // Automated Webhook & API Polling Loop (no manual confirm button needed)
+  const timeLeftRef = useRef(timeLeft);
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    timeLeftRef.current = timeLeft;
+  }, [timeLeft]);
+
+  // Step 2: Polling loop every 3 seconds to check GET /api/orders/{orderCode}
+  useEffect(() => {
+    if (!orderData?.orderCode || orderStatus !== "PENDING") {
+      return;
+    }
 
     let isSubscribed = true;
-    const pollInterval = SEPAY_CONFIG.pollIntervalMs || 5000;
+    const pollInterval = 5000;
 
-    const checkTransactionStatus = async () => {
+    const checkOrderStatus = async () => {
+      if (timeLeftRef.current <= 0) return;
       try {
-        if (!SEPAY_CONFIG.apiKey) {
-          return;
-        }
+        const res = await OrderService.getOrderStatus(orderData.orderCode);
+        if (!isSubscribed) return;
 
-        const response = await fetch(
-          `${SEPAY_CONFIG.apiUrl}/transactions/list?account_number=${encodeURIComponent(
-            SEPAY_CONFIG.accountNumber,
-          )}&limit=20`,
-          {
-            headers: {
-              Authorization: `Bearer ${SEPAY_CONFIG.apiKey}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
+        const currentStatus = (res?.data?.status || (res?.data as any)?.orderStatus || "PENDING")?.toUpperCase();
 
-        if (!response.ok) return;
+        if (currentStatus && currentStatus !== "PENDING") {
+          setOrderStatus(currentStatus);
 
-        const data = await response.json();
-        const transactions = data?.transactions || data?.data?.transactions || [];
-
-        const matchedTx = transactions.find((tx: any) => {
-          const content = String(
-            tx.transaction_content || tx.code || tx.des || "",
-          ).toUpperCase();
-          const amountIn = Number(tx.amount_in || tx.amount || 0);
-          return content.includes(orderCode.toUpperCase()) && amountIn >= vndAmount;
-        });
-
-        if (matchedTx && isSubscribed) {
-          setIsVerifying(true);
-          onSubmit?.();
+          if (currentStatus === "COMPLETED") {
+            onSubmit?.();
+          }
         }
       } catch (error) {
-        console.error("SePay automated webhook polling check error:", error);
+        console.error("Error polling order status:", error);
       }
     };
 
-    const intervalId = setInterval(checkTransactionStatus, pollInterval);
+    // Run immediately when mounted/order created
+    checkOrderStatus();
+
+    const intervalId = setInterval(checkOrderStatus, pollInterval);
     return () => {
       isSubscribed = false;
       clearInterval(intervalId);
     };
-  }, [orderCode, vndAmount, timeLeft, onSubmit]);
+  }, [orderData?.orderCode, orderStatus, onSubmit]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -110,10 +125,36 @@ export default function SePayPaymentForm({
   };
 
   const copyToClipboard = (text: string, field: string) => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
   };
+
+  if (isInitializing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+        <LoaderCircle size={28} className="animate-spin text-neon-cyan" />
+        <p className="text-xs text-text-primary/60">
+          Generating secure payment order...
+        </p>
+      </div>
+    );
+  }
+
+  if (initError || !orderData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+        <AlertCircle size={32} className="text-neon-pink" />
+        <p className="text-xs text-text-primary/70 max-w-sm">
+          {initError || "Unable to load order details."}
+        </p>
+        <NeonButton variant="secondary" size="sm" onClick={initOrder} startIcon={<RotateCcw size={13} />}>
+          Retry Order
+        </NeonButton>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -161,7 +202,7 @@ export default function SePayPaymentForm({
             }}
           >
             <img
-              src={qrImageUrl}
+              src={orderData.qrCodeUrl}
               alt="SePay VietQR Code"
               className="w-44 h-44 object-contain rounded-lg"
               loading="eager"
@@ -172,9 +213,9 @@ export default function SePayPaymentForm({
           </span>
         </div>
 
-        {/* Transfer Information list */}
+        {/* Transfer Information list from API */}
         <div className="flex flex-col gap-2.5 text-xs">
-          {/* Bank */}
+          {/* Bank Name */}
           <div
             className="flex items-center justify-between p-2.5 rounded-lg"
             style={{ background: "#00D4FF0A", border: "1px solid #00D4FF14" }}
@@ -186,7 +227,7 @@ export default function SePayPaymentForm({
               className="font-bold truncate max-w-[180px]"
               style={{ color: "var(--system-color-mist-lavender)" }}
             >
-              {SEPAY_CONFIG.bankName}
+              {orderData.bankName}
             </span>
           </div>
 
@@ -200,12 +241,12 @@ export default function SePayPaymentForm({
             </span>
             <div className="flex items-center gap-2">
               <span className="font-mono font-bold text-sm text-[#00d4ff]">
-                {SEPAY_CONFIG.accountNumber}
+                {orderData.accountNumber}
               </span>
               <button
                 type="button"
                 onClick={() =>
-                  copyToClipboard(SEPAY_CONFIG.accountNumber, "account")
+                  copyToClipboard(orderData.accountNumber, "account")
                 }
                 className="flex items-center gap-1 px-2 py-1 rounded bg-[#00D4FF1A] hover:bg-[#00D4FF33] text-[#00d4ff] text-[11px] transition-colors"
               >
@@ -234,7 +275,7 @@ export default function SePayPaymentForm({
               className="font-bold uppercase"
               style={{ color: "var(--system-color-mist-lavender)" }}
             >
-              {SEPAY_CONFIG.accountName}
+              {orderData.accountName}
             </span>
           </div>
 
@@ -248,12 +289,12 @@ export default function SePayPaymentForm({
             </span>
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-[#00d4ff]">
-                {Utils.convert.currency(vndAmount, "vi")}
+                {Utils.convert.currency(orderData.amount, "vi")}
               </span>
               <button
                 type="button"
                 onClick={() =>
-                  copyToClipboard(vndAmount.toString(), "amount")
+                  copyToClipboard(orderData.amount.toString(), "amount")
                 }
                 className="flex items-center gap-1 px-2 py-1 rounded bg-[#00D4FF1A] hover:bg-[#00D4FF33] text-[#00d4ff] text-[11px] transition-colors"
               >
@@ -283,11 +324,11 @@ export default function SePayPaymentForm({
             </span>
             <div className="flex items-center gap-2">
               <span className="font-mono font-black text-sm text-[#c084fc]">
-                {orderCode}
+                {orderData.orderCode}
               </span>
               <button
                 type="button"
-                onClick={() => copyToClipboard(orderCode, "code")}
+                onClick={() => copyToClipboard(orderData.orderCode, "code")}
                 className="flex items-center gap-1 px-2 py-1 rounded bg-[#7B2FBE33] hover:bg-[#7B2FBE59] text-[#c084fc] text-[11px] transition-colors"
               >
                 {copiedField === "code" ? (
@@ -318,27 +359,46 @@ export default function SePayPaymentForm({
         <p>{t("desktop.paymentPage.sepay.notice")}</p>
       </div>
 
-      {/* Waiting / Automated Signal status indicator */}
-      <div
-        className="flex items-center justify-center gap-2 text-xs p-3 rounded-lg"
-        style={{
-          background: isVerifying ? "#00FF8814" : "#00D4FF0F",
-          border: isVerifying ? "1px solid #00FF8840" : "1px solid #00D4FF26",
-          color: isVerifying ? "#00ff88" : "#E8E8FF8C",
-        }}
-      >
-        <LoaderCircle
-          size={14}
-          className={isVerifying ? "animate-spin text-[#00ff88]" : "animate-spin text-[#00d4ff]"}
-        />
-        <span>
-          {isVerifying
-            ? t("desktop.paymentPage.sepay.verifyingPayment", {
-                defaultValue: "Payment signal received! Processing order...",
-              })
-            : t("desktop.paymentPage.sepay.waitingForSignal")}
-        </span>
-      </div>
+      {/* Polling Status Indicator: PENDING / COMPLETED / FAILED / REFUNDED */}
+      {orderStatus === "COMPLETED" ? (
+        <div
+          className="flex items-center justify-center gap-2 text-xs p-3 rounded-lg bg-[#00FF8814] border border-[#00FF8840] text-[#00ff88]"
+        >
+          <Check size={16} className="text-[#00ff88]" />
+          <span className="font-bold">
+            Payment COMPLETED successfully! Redirecting...
+          </span>
+        </div>
+      ) : orderStatus === "FAILED" ? (
+        <div
+          className="flex items-center justify-center gap-2 text-xs p-3 rounded-lg bg-neon-pink/10 border border-neon-pink/40 text-neon-pink"
+        >
+          <AlertCircle size={16} />
+          <span className="font-bold">
+            Payment FAILED. Please try again or contact support.
+          </span>
+        </div>
+      ) : orderStatus === "REFUNDED" ? (
+        <div
+          className="flex items-center justify-center gap-2 text-xs p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-amber-400"
+        >
+          <RotateCcw size={16} />
+          <span className="font-bold">
+            Payment has been REFUNDED.
+          </span>
+        </div>
+      ) : (
+        <div
+          className="flex items-center justify-center gap-2 text-xs p-3 rounded-lg bg-[#00D4FF0F] border border-[#00D4FF26] text-[#E8E8FF8C]"
+        >
+          <LoaderCircle size={14} className="animate-spin text-[#00d4ff]" />
+          <span>
+            {t("desktop.paymentPage.sepay.waitingForSignal", {
+              defaultValue: "Waiting for transfer (polling every 3s)...",
+            })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

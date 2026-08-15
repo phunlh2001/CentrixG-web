@@ -6,7 +6,7 @@
   "main": "./out/main/index.cjs",
   "scripts": {
     "dev": "npm run dev:web",
-    "dev:web": "npm run dist:desktop && npx cross-env VITE_APP_TARGET=web VITE_ENABLE_WEB=true VITE_ENABLE_DESKTOP=false vite",
+    "dev:web": "npx cross-env VITE_APP_TARGET=web VITE_ENABLE_WEB=true VITE_ENABLE_DESKTOP=false vite",
     "dev:desktop": "npx cross-env VITE_APP_TARGET=desktop VITE_ENABLE_WEB=false VITE_ENABLE_DESKTOP=true electron-vite dev",
     "build": "npm run build:web",
     "build:web": "npm run dist:desktop && npx cross-env VITE_APP_TARGET=web VITE_ENABLE_WEB=true VITE_ENABLE_DESKTOP=false tsc -b && vite build",

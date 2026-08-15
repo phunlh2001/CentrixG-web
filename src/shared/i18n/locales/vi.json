@@ -104,7 +104,7 @@
       "curatedCatalog": "Danh mục chọn lọc",
       "steamReady": "Sẵn sàng Steam",
       "website": "Website",
-      "steamKey": "Steam Key",
+      "steamKey": "Steam",
       "items": "mục"
     },
     "gameTags": {
@@ -184,7 +184,7 @@
       "subtotal_one": "Tạm tính ({{count}} sản phẩm)",
       "subtotal_other": "Tạm tính ({{count}} sản phẩm)",
       "delivery": "Giao hàng",
-      "free": "Miễn phí",
+      "free": "Kích hoạt ngay",
       "total": "Tổng cộng",
       "checkout": "Tiến hành thanh toán",
       "keysNote": "Key giao ngay sau thanh toán",
@@ -410,7 +410,7 @@
       "warningText": "Khuyến nghị cho người chơi từ 16 tuổi trở lên",
       "description": "Black Myth: Wukong là game nhập vai hành động lấy cảm hứng từ thần thoại Trung Hoa. Bạn sẽ bước vào hành trình của Thiên Mệnh Nhân để đối mặt với thử thách và khám phá sự thật bị che khuất sau một huyền thoại rực rỡ.",
       "back": "Quay lại",
-      "steamKeyBadge": "Steam Key",
+      "steamKeyBadge": "Steam",
       "priceNote": "Giá VNĐ · Giao tức thì",
       "aboutProduct": "Về sản phẩm",
       "dlcsTitle": "Nội dung mở rộng (DLCs)",

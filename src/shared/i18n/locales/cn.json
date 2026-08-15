@@ -104,7 +104,7 @@
       "curatedCatalog": "精选目录",
       "steamReady": "Steam 就绪",
       "website": "网站",
-      "steamKey": "Steam Key",
+      "steamKey": "Steam",
       "items": "件"
     },
     "gameTags": {
@@ -184,7 +184,7 @@
       "subtotal_one": "小计（{{count}} 件）",
       "subtotal_other": "小计（{{count}} 件）",
       "delivery": "配送",
-      "free": "免费",
+      "free": "即时激活",
       "total": "合计",
       "checkout": "去结算",
       "keysNote": "付款后即时发送 Key",
@@ -410,7 +410,7 @@
       "warningText": "建议 16 岁及以上玩家",
       "description": "《黑神话：悟空》是一款植根于中国神话的动作角色扮演游戏。你将作为天命人踏上旅程，面对前方的挑战与奇观，揭开辉煌传说背后被掩盖的真相。",
       "back": "返回",
-      "steamKeyBadge": "Steam Key",
+      "steamKeyBadge": "Steam",
       "priceNote": "越南盾定价 · 即时交付",
       "aboutProduct": "关于此产品",
       "dlcsTitle": "可下载内容 (DLCs)",

@@ -104,7 +104,7 @@
       "curatedCatalog": "Curated catalog",
       "steamReady": "Steam ready",
       "website": "Website",
-      "steamKey": "Steam Key",
+      "steamKey": "Steam",
       "items": "items"
     },
     "gameTags": {
@@ -184,7 +184,7 @@
       "subtotal_one": "Subtotal ({{count}} item)",
       "subtotal_other": "Subtotal ({{count}} items)",
       "delivery": "Delivery",
-      "free": "Free",
+      "free": "Instant Activation",
       "total": "Total",
       "checkout": "Proceed to Checkout",
       "keysNote": "Keys delivered instantly after payment",
@@ -410,7 +410,7 @@
       "warningText": "Recommended for ages 16 and up",
       "description": "Black Myth: Wukong is an action RPG rooted in Chinese mythology. You shall set out as the Destined One to venture into the challenges and marvels ahead, to uncover the obscured truth beneath the veil of a glorious legend from the past.",
       "back": "Back",
-      "steamKeyBadge": "Steam Key",
+      "steamKeyBadge": "Steam",
       "priceNote": "Price in VND · Instant delivery",
       "aboutProduct": "About This Product",
       "dlcsTitle": "Downloadable Content (DLCs)",
