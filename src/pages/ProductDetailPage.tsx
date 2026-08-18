@@ -42,7 +42,7 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { addItem, isInCart } = useCart();
-  const { checkAuth } = useAuthStore();
+  const { checkAuth, accessToken } = useAuthStore();
 
   const isActivateMode =
     location.search.includes("mode=activate") ||
@@ -172,9 +172,16 @@ export default function ProductDetailPage() {
   const handleConfirmActivate = async () => {
     setIsExecutingActivation(true);
     try {
-      const targetAppId = product.appId || product.id;
+      const userToken = accessToken || AuthService.getAccessToken() || "";
+      const targetAppId = product.appId;
+      const platformType = product.type;
+
       if (window.centrixDesktop?.installApp) {
-        const result = await window.centrixDesktop.installApp(targetAppId);
+        const result = await window.centrixDesktop.installApp(
+          userToken,
+          targetAppId,
+          platformType,
+        );
         if (result && result.success) {
           toast.success(
             t("desktop.productDetailPage.activateSuccessToast", {

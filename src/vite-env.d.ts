@@ -25,6 +25,10 @@ interface Window {
   centrixDesktop?: {
     isDesktop: boolean;
     platform: string;
-    installApp?: (appId: number | string) => Promise<{ success: boolean; message: string }>;
+    installApp?: (
+      token: string,
+      appId: number | string,
+      type?: string,
+    ) => Promise<{ success: boolean; message: string }>;
   };
 }

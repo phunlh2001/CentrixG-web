@@ -21,13 +21,18 @@ function getInstallAppExePath(): string {
     : join(process.cwd(), "bin", "InstallApp.exe");
 }
 
-ipcMain.handle("install-app", async (_, appId: number | string) => {
-  return new Promise<{ success: boolean; message: string }>((resolve) => {
-    const exePath = getInstallAppExePath();
-    const command = exePath;
-    const args = [String(appId)];
+ipcMain.handle(
+  "install-app",
+  async (_, token: string, appId: number | string, type?: string) => {
+    return new Promise<{ success: boolean; message: string }>((resolve) => {
+      const exePath = getInstallAppExePath();
+      const command = exePath;
+      const args = [String(token || ""), String(appId || "")];
+      if (type) {
+        args.push(String(type));
+      }
 
-    console.log(`[IPC install-app] Executing: ${command}`, args);
+      console.log(`[IPC install-app] Executing: ${command}`, args);
 
     let latestLog = "";
     const logsList: string[] = [];

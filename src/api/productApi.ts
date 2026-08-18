@@ -36,6 +36,7 @@ export interface IProduct {
   developer?: string;
   publisher?: string;
   categories: string[];
+  type?: string;
   platforms: string[];
   dlcs: IDlc[];
   disabled: boolean;
