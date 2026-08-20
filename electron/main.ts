@@ -82,14 +82,14 @@ ipcMain.handle(
         await new Promise((res) => setTimeout(res, 15000));
         resolve({
           success: true,
-          message: "Implemented manifest successfully!",
+          message: "Game is ready! Check your Steam Library.",
         });
       } else {
         console.log("[IPC install-app] Error/no success log. Waiting 10 seconds...");
         await new Promise((res) => setTimeout(res, 10000));
         resolve({
           success: false,
-          message: "couldn't implement manifest now",
+          message: "Failed to prepare game in Steam Library",
         });
       }
     };

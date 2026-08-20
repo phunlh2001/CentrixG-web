@@ -185,25 +185,29 @@ export default function ProductDetailPage() {
         if (result && result.success) {
           toast.success(
             t("desktop.productDetailPage.activateSuccessToast", {
-              defaultValue: result.message || "Implemented manifest successfully!",
+              defaultValue: "Game is ready! Check your Steam Library.",
             }),
           );
         } else {
           toast.error(
             t("desktop.productDetailPage.activateErrorToast", {
-              defaultValue: "couldn't implement manifest now",
+              defaultValue: "Could not activate game right now. Please try again.",
             }),
           );
         }
       } else {
         // Fallback for non-electron web preview
         await new Promise((res) => setTimeout(res, 2000));
-        toast.success("Implemented manifest successfully!");
+        toast.success(
+          t("desktop.productDetailPage.activateSuccessToast", {
+            defaultValue: "Game is ready! Check your Steam Library.",
+          }),
+        );
       }
     } catch (error: any) {
       toast.error(
         t("desktop.productDetailPage.activateErrorToast", {
-          defaultValue: "couldn't implement manifest now",
+          defaultValue: "Could not activate game right now. Please try again.",
         }),
       );
     } finally {
