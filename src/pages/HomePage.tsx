@@ -57,6 +57,7 @@ export default function HomePage() {
           const rawItems = response.data.items || [];
           const filtered = rawItems.filter(isValidProduct).slice(0, 5);
           setHeroProducts(filtered);
+          console.log(heroProducts)
         }
       } catch (error) {
         console.error("Error fetching hero products:", error);

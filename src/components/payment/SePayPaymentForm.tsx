@@ -26,37 +26,51 @@ export default function SePayPaymentForm({
 }: SePayPaymentFormProps) {
   const { t } = useTranslation();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(1000);
+  const [timeLeft, setTimeLeft] = useState<number>(900); // 15 minutes
   const [orderData, setOrderData] = useState<IOrderDetails | null>(null);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [initError, setInitError] = useState<string | null>(null);
   const [orderStatus, setOrderStatus] = useState<string>("PENDING");
 
-  // Step 1: Initialize order via API: POST /api/orders
+  // Step 1: Initialize order via API: GET /api/orders/latest -> if null, POST /api/orders
   const initOrder = async () => {
     setIsInitializing(true);
     setInitError(null);
     try {
-      const res = await OrderService.createOrder(amount);
-      if (res && res.success && res.data) {
-        setOrderData(res.data);
-        setOrderStatus(res.data.status || "PENDING");
+      // 1. Try checking latest order first
+      let order: IOrderDetails | null = null;
+      const latestRes = await OrderService.getLatestOrder();
+
+      if (latestRes && latestRes.success && latestRes.data && latestRes.data.orderCode) {
+        const latestStatus = (latestRes.data.status || "PENDING").toUpperCase();
+        if (latestStatus === "PENDING") {
+          order = latestRes.data;
+        }
+      }
+
+      // 2. If no active pending order exists, create a new order
+      if (!order) {
+        const createRes = await OrderService.createOrder(amount);
+        if (createRes && createRes.success && createRes.data) {
+          order = createRes.data;
+        } else if (createRes?.data) {
+          order = createRes.data;
+        }
+      }
+
+      if (order) {
+        setOrderData(order);
+        setOrderStatus(order.status || "PENDING");
+        if (typeof order.expired === "number" && order.expired >= 0) {
+          setTimeLeft(order.expired);
+        } else {
+          setTimeLeft(900);
+        }
       } else {
-        // Fallback mock payload matching user specified json contract if backend mock is active
-        const fallbackOrder: IOrderDetails = {
-          orderCode: res?.data?.orderCode || "",
-          amount: amount,
-          accountNumber: res?.data?.accountNumber || "",
-          accountName: res?.data?.accountName || "",
-          bankName: res?.data?.bankName || "",
-          qrCodeUrl: res?.data?.qrCodeUrl || "",
-          status: "PENDING",
-        };
-        setOrderData(fallbackOrder);
-        setOrderStatus("PENDING");
+        throw new Error("Unable to create or retrieve order details.");
       }
     } catch (err: any) {
-      console.error("Error creating order:", err);
+      console.error("Error initializing order:", err);
       setInitError(err?.message || "Failed to initialize payment order.");
     } finally {
       setIsInitializing(false);

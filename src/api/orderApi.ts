@@ -10,6 +10,7 @@ export interface IOrderDetails {
   accountName: string;
   bankName: string;
   qrCodeUrl: string;
+  expired?: number;
   status?: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED" | string;
   createdAt?: string;
   updatedAt?: string;
@@ -29,6 +30,17 @@ export const OrderService = {
       return response;
     } catch (error: any) {
       throw new Error(error.message || "Failed to create order");
+    }
+  },
+
+  getLatestOrder: async (): Promise<BaseApiResponse<IOrderDetails | null> | undefined> => {
+    try {
+      const response = await HttpClient.get<IOrderDetails | null>(
+        `${BASE_URL}/latest`,
+      );
+      return response;
+    } catch (error: any) {
+      return undefined;
     }
   },
 
