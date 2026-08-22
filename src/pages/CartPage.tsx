@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useCart, Utils } from "@/shared";
 import { ArrowRight, ShoppingCart, Trash2, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -48,6 +49,11 @@ export default function CartPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { items, removeItem, clearCart, itemCount } = useCart();
+
+  // Reset pagination state to page 1 when visiting CartPage
+  useEffect(() => {
+    localStorage.setItem("products_current_page", "1");
+  }, []);
 
   const subtotal = items.reduce((sum, item) => {
     const price = item.discount

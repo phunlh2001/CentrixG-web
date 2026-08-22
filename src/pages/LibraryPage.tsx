@@ -161,6 +161,11 @@ export default function LibraryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const currentUser = AuthService.getCurrentUser();
 
+  // Reset pagination state to page 1 when visiting LibraryPage
+  useEffect(() => {
+    localStorage.setItem("products_current_page", "1");
+  }, []);
+
   useEffect(() => {
     if (!currentUser) {
       setLibrary([]);

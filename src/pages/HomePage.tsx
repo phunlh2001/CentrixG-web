@@ -34,9 +34,18 @@ export default function HomePage() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [heroProducts, setHeroProducts] = useState<IProduct[]>([]);
   const [isHeroLoading, setIsHeroLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(() => {
+    const saved = localStorage.getItem("products_current_page");
+    const parsed = saved ? parseInt(saved, 10) : 1;
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
+  });
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 12;
+
+  // Persist current page to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("products_current_page", String(page));
+  }, [page]);
 
   // Fetch Hero Section featured products independently on mount (unaffected by searchQuery)
   useEffect(() => {

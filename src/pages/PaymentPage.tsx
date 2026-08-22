@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -26,6 +27,11 @@ export default function PaymentPage() {
   const { pathname } = useLocation();
   const { items, itemCount, clearCart, removeItem } = useCart();
   const isSuccess = pathname === '/payment/success';
+
+  // Reset pagination state to page 1 when visiting PaymentPage
+  useEffect(() => {
+    localStorage.setItem("products_current_page", "1");
+  }, []);
 
   const subtotal = items.reduce((sum, item) => {
     const price = item.discount
