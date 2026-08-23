@@ -28,7 +28,7 @@ interface Window {
     installApp?: (
       token: string,
       appId: number | string,
-      type?: string,
+      type?: string | null,
     ) => Promise<{ success: boolean; message: string }>;
   };
 }

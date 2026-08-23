@@ -23,76 +23,115 @@ function getInstallAppExePath(): string {
 
 ipcMain.handle(
   "install-app",
-  async (_, token: string, appId: number | string, type?: string) => {
+  async (_, token: string, appId: number | string, type?: string | null) => {
     return new Promise<{ success: boolean; message: string }>((resolve) => {
       const exePath = getInstallAppExePath();
       const command = exePath;
       const args = [String(token || ""), String(appId || "")];
-      if (type) {
+      if (type && type !== null) {
         args.push(String(type));
       }
 
       console.log(`[IPC install-app] Executing: ${command}`, args);
 
-    let latestLog = "";
-    const logsList: string[] = [];
-    let isResolved = false;
+      let latestLog = "";
+      const logsList: string[] = [];
+      let isResolved = false;
 
-    let child: ReturnType<typeof spawn> | null = null;
-    try {
-      child = spawn(command, args, {
-        cwd: dirname(exePath),
-        windowsHide: true,
-      });
-    } catch (err: any) {
-      console.error("[IPC install-app] Error spawning InstallApp.exe:", err);
-    }
-
-    if (child) {
-      child.stdout?.on("data", (data: Buffer) => {
-        const text = data.toString("utf-8").trim();
-        if (text) {
-          latestLog = text;
-          logsList.push(text);
-          console.log("[InstallApp stdout]:", text);
-        }
-      });
-
-      child.stderr?.on("data", (data: Buffer) => {
-        const text = data.toString("utf-8").trim();
-        if (text) {
-          latestLog = text;
-          logsList.push(text);
-          console.error("[InstallApp stderr]:", text);
-        }
-      });
-    }
-
-    // Process conclusion handler after required delays
-    const evaluateAndResolve = async () => {
-      if (isResolved) return;
-      isResolved = true;
-
-      const isSuccess =
-        latestLog.includes("Implemented manifest successfully!") ||
-        logsList.some((l) => l.includes("Implemented manifest successfully!"));
-
-      if (isSuccess) {
-        console.log("[IPC install-app] Success log detected. Waiting 15 seconds...");
-        await new Promise((res) => setTimeout(res, 15000));
-        resolve({
-          success: true,
-          message: "Game is ready! Check your Steam Library.",
+      let child: ReturnType<typeof spawn> | null = null;
+      try {
+        child = spawn(command, args, {
+          cwd: dirname(exePath),
+          windowsHide: true,
         });
-      } else {
-        console.log("[IPC install-app] Error/no success log. Waiting 10 seconds...");
-        await new Promise((res) => setTimeout(res, 10000));
-        resolve({
-          success: false,
-          message: "Failed to prepare game in Steam Library",
+      } catch (err: any) {
+        console.error("[IPC install-app] Error spawning InstallApp.exe:", err);
+      }
+
+      if (child) {
+        child.stdout?.on("data", (data: Buffer) => {
+          const text = data.toString("utf-8").trim();
+          if (text) {
+            latestLog = text;
+            logsList.push(text);
+            console.log("[InstallApp stdout]:", text);
+          }
+        });
+
+        child.stderr?.on("data", (data: Buffer) => {
+          const text = data.toString("utf-8").trim();
+          if (text) {
+            latestLog = text;
+            logsList.push(text);
+            console.error("[InstallApp stderr]:", text);
+          }
         });
       }
-    };
+
+      // Process conclusion handler after required delays
+      const evaluateAndResolve = async () => {
+        if (isResolved) return;
+        isResolved = true;
+
+        const logText = logsList.join("\n") + "\n" + latestLog;
+        const normalizedType = (type || "").toUpperCase();
+
+        // 1. Ubisoft Launcher Check
+        if (normalizedType === "UBISOFT" || logText.toLowerCase().includes("ubisoft")) {
+          const ubiSuccess = logText.includes("Override ubisoft dll successfully!");
+          const ubiFail = logText.includes("Not found fileUrl for ubisoft!");
+
+          if (ubiSuccess && !ubiFail) {
+            resolve({
+              success: true,
+              message: "Activate Ubisoft successfully!",
+            });
+          } else {
+            resolve({
+              success: false,
+              message: "Failed to activate Ubisoft!",
+            });
+          }
+          return;
+        }
+
+        // 2. Rockstar Launcher Check
+        if (normalizedType === "ROCKSTAR" || logText.toLowerCase().includes("rockstar")) {
+          const rockstarSuccess = logText.includes("Implemented rockstar third-party successfully!");
+          const rockstarFail = logText.includes("Not found fileUrl for rockstar!");
+
+          if (rockstarSuccess && !rockstarFail) {
+            resolve({
+              success: true,
+              message: "Activate Rockstar  successfully!",
+            });
+          } else {
+            resolve({
+              success: false,
+              message: "Failed to activate Rockstar!",
+            });
+          }
+          return;
+        }
+
+        // 3. Default / Manifest / EA Check
+        const isSuccess = logText.includes("Implemented manifest successfully!");
+        if (isSuccess) {
+          console.log("[IPC install-app] Success log detected. Waiting 15 seconds...");
+          await new Promise((res) => setTimeout(res, 15000));
+          resolve({
+            success: true,
+            message: "Game is ready! Check your Steam Library.",
+          });
+        } else {
+          console.log("[IPC install-app] Error/no success log. Waiting 10 seconds...");
+          await new Promise((res) => setTimeout(res, 10000));
+          resolve({
+            success: false,
+            message: "Failed to prepare game in Steam Library",
+          });
+        }
+      };
 
     // 30-second execution wait timer (max 60 seconds)
     const INSTALL_APP_WAIT_MS = 30 * 1000;

@@ -3,6 +3,6 @@ import { contextBridge, ipcRenderer } from "electron";
 contextBridge.exposeInMainWorld("centrixDesktop", {
   isDesktop: true,
   platform: process.platform,
-  installApp: (token: string, appId: number | string, type?: string) =>
+  installApp: (token: string, appId: number | string, type?: string | null) =>
     ipcRenderer.invoke("install-app", token, appId, type),
 });

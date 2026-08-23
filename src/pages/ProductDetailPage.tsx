@@ -60,6 +60,7 @@ export default function ProductDetailPage() {
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isExecutingActivation, setIsExecutingActivation] = useState(false);
+  const [isTypeButtonDisabled, setIsTypeButtonDisabled] = useState(true);
 
   const CATEGORIES_MAX_VISIBLE = 5;
 
@@ -169,18 +170,21 @@ export default function ProductDetailPage() {
     setIsActivateModalOpen(true);
   };
 
+  const launcherType = product?.type?.trim() || undefined;
+
   const handleConfirmActivate = async () => {
+    if (!product) return;
     setIsExecutingActivation(true);
     try {
       const userToken = accessToken || AuthService.getAccessToken() || "";
       const targetAppId = product.appId;
-      const platformType = product.type;
 
       if (window.centrixDesktop?.installApp) {
+        // Prepare Game button passes explicit null as third parameter
         const result = await window.centrixDesktop.installApp(
           userToken,
           targetAppId,
-          platformType,
+          null,
         );
         if (result && result.success) {
           toast.success(
@@ -188,6 +192,8 @@ export default function ProductDetailPage() {
               defaultValue: "Game is ready! Check your Steam Library.",
             }),
           );
+          // Unlock secondary launcher activation button upon success toast
+          setIsTypeButtonDisabled(false);
         } else {
           toast.error(
             t("desktop.productDetailPage.activateErrorToast", {
@@ -203,6 +209,7 @@ export default function ProductDetailPage() {
             defaultValue: "Game is ready! Check your Steam Library.",
           }),
         );
+        setIsTypeButtonDisabled(false);
       }
     } catch (error: any) {
       toast.error(
@@ -213,6 +220,57 @@ export default function ProductDetailPage() {
     } finally {
       setIsExecutingActivation(false);
       setIsActivateModalOpen(false);
+    }
+  };
+
+  const handleConfirmActivateType = async () => {
+    if (!product || !launcherType) return;
+    setIsExecutingActivation(true);
+    try {
+      const userToken = accessToken || AuthService.getAccessToken() || "";
+      const targetAppId = product.appId;
+
+      if (window.centrixDesktop?.installApp) {
+        const result = await window.centrixDesktop.installApp(
+          userToken,
+          targetAppId,
+          launcherType,
+        );
+
+        const normType = launcherType.toUpperCase();
+        if (result && result.success) {
+          let msg = result.message || `Activate ${launcherType} successfully!`;
+          if (normType.includes("UBISOFT")) {
+            msg = t("desktop.productDetailPage.activateUbisoftSuccess", {
+              defaultValue: "Activate Ubisoft successfully!",
+            });
+          } else if (normType.includes("ROCKSTAR")) {
+            msg = t("desktop.productDetailPage.activateRockstarSuccess", {
+              defaultValue: "Activate Rockstar  successfully!",
+            });
+          }
+          toast.success(msg);
+        } else {
+          let msg = result?.message || `Failed to activate ${launcherType}!`;
+          if (normType.includes("UBISOFT")) {
+            msg = t("desktop.productDetailPage.activateUbisoftFailed", {
+              defaultValue: "Failed to activate Ubisoft!",
+            });
+          } else if (normType.includes("ROCKSTAR")) {
+            msg = t("desktop.productDetailPage.activateRockstarFailed", {
+              defaultValue: "Failed to activate Rockstar!",
+            });
+          }
+          toast.error(msg);
+        }
+      } else {
+        await new Promise((res) => setTimeout(res, 2000));
+        toast.success(`Activate ${launcherType} successfully!`);
+      }
+    } catch (error: any) {
+      toast.error(`Failed to activate ${launcherType}!`);
+    } finally {
+      setIsExecutingActivation(false);
     }
   };
 
@@ -400,17 +458,35 @@ export default function ProductDetailPage() {
                 <div className="flex sm:flex-row flex-col gap-2.5 sm:w-auto w-full">
                   {isActivateMode ? (
                     isDesktopApp ? (
-                      <NeonButton
-                        type="button"
-                        variant="primary"
-                        size="md"
-                        startIcon={<Zap size={16} />}
-                        onClick={handleActivateClick}
-                      >
-                        {t("desktop.productDetailPage.actActivate", {
-                          defaultValue: "Activate",
-                        })}
-                      </NeonButton>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <NeonButton
+                          type="button"
+                          variant="primary"
+                          size="md"
+                          startIcon={<Zap size={16} />}
+                          onClick={handleActivateClick}
+                        >
+                          {t("desktop.productDetailPage.actPrepareGame", {
+                            defaultValue: "Prepare Game",
+                          })}
+                        </NeonButton>
+
+                        {launcherType && (
+                          <NeonButton
+                            type="button"
+                            variant="secondary"
+                            size="md"
+                            startIcon={<Zap size={16} />}
+                            onClick={handleConfirmActivateType}
+                            disabled={isTypeButtonDisabled || isExecutingActivation}
+                          >
+                            {t("desktop.productDetailPage.actActivateType", {
+                              type: launcherType,
+                              defaultValue: `Activate ${launcherType}`,
+                            })}
+                          </NeonButton>
+                        )}
+                      </div>
                     ) : (
                       <NeonButton
                         type="button"
