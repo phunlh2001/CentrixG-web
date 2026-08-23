@@ -144,8 +144,15 @@ const createWindow = () => {
     console.error(`[Electron Main] Failed to load renderer: ${errorCode} - ${errorDescription}`);
   });
 
+  // Always clear session cache programmatically before loading URL to ensure fresh web assets
+  void mainWindow.webContents.session.clearCache().then(() => {
+    console.log("[Electron Main] Cleared HTTP session cache.");
+  });
+
   if (process.env.ELECTRON_RENDERER_URL) {
-    void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
+    void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL, {
+      extraHeaders: "pragma: no-cache\r\nCache-Control: no-cache\r\n",
+    });
   } else {
     void mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
