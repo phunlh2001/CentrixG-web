@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
     setIsActivateModalOpen(true);
   };
 
-  const launcherType = product?.type?.trim() || undefined;
+  const launcherType = product?.type?.name?.trim() || undefined;
 
   const handleConfirmActivate = async () => {
     if (!product) return;

@@ -36,7 +36,7 @@ export interface IProduct {
   developer?: string;
   publisher?: string;
   categories: string[];
-  type?: string;
+  type?: IType;
   platforms: string[];
   dlcs: IDlc[];
   disabled: boolean;
@@ -44,6 +44,11 @@ export interface IProduct {
   invisible?: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IType {
+  id: string;
+  name: string;
 }
 
 export interface IPaginatedProducts {
