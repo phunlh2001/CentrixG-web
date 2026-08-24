@@ -395,6 +395,7 @@
       "activateRockstarFailed": "激活 Rockstar 失败！",
       "actDownloadLauncher": "下载启动器",
       "activateConfirmMsg": "我们将在此过程中重新启动 Steam 客户端。您要继续吗？",
+      "activateConfirmMsgWithType": "我们将为您在 Steam 库中准备游戏。为了获得最佳体验，请在点击“激活 {{type}}”前先安装游戏。",
       "activateConfirmTitle": "激活确认",
       "actContinue": "继续",
       "actCancel": "取消",

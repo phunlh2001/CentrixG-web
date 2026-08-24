@@ -395,6 +395,7 @@
       "activateRockstarFailed": "Failed to activate Rockstar!",
       "actDownloadLauncher": "Download Launcher",
       "activateConfirmMsg": "We will restart the steam client for this process. Do you want to continue?",
+      "activateConfirmMsgWithType": "We will prepare the game in your Steam library. Please install the game before clicking Activate {{type}} for the best experience.",
       "activateConfirmTitle": "Activation Confirmation",
       "actContinue": "Continue",
       "actCancel": "Cancel",

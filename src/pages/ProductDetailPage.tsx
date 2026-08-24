@@ -711,10 +711,15 @@ export default function ProductDetailPage() {
                       })}
                     </h3>
                     <p className="text-sm text-text-primary/80 leading-relaxed">
-                      {t("desktop.productDetailPage.activateConfirmMsg", {
-                        defaultValue:
-                          "We will restart the steam client for this process. Do you want to continue?",
-                      })}
+                      {launcherType
+                        ? t("desktop.productDetailPage.activateConfirmMsgWithType", {
+                            type: launcherType,
+                            defaultValue: `We will prepare the game in your Steam library. Please install the game before clicking Activate ${launcherType} for the best experience.`,
+                          })
+                        : t("desktop.productDetailPage.activateConfirmMsg", {
+                            defaultValue:
+                              "We will restart the steam client for this process. Do you want to continue?",
+                          })}
                     </p>
                   </div>
 

@@ -395,6 +395,7 @@
       "activateRockstarFailed": "Kích hoạt Rockstar thất bại!",
       "actDownloadLauncher": "Tải Launcher",
       "activateConfirmMsg": "Chúng tôi sẽ khởi động lại ứng dụng Steam cho quá trình này. Bạn có muốn tiếp tục không?",
+      "activateConfirmMsgWithType": "Chúng tôi sẽ chuẩn bị game vào Thư viện Steam của bạn. Vui lòng cài đặt game trước khi bấm Kích hoạt {{type}} để có trải nghiệm tốt nhất.",
       "activateConfirmTitle": "Xác nhận kích hoạt",
       "actContinue": "Tiếp tục",
       "actCancel": "Hủy",
