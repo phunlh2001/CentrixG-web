@@ -331,9 +331,12 @@
         "originalAccount": "KHÔNG can thiệp vào account gốc: Bạn sử dụng chính tài khoản Steam cá nhân của mình để đăng nhập và trải nghiệm.",
         "systemRisk": "KHÔNG rủi ro hệ thống: Mọi giải pháp đều được kiểm thử kỹ để hệ thống bảo mật Steam luôn nhận diện trạng thái an toàn."
       },
+      "fullDlcTitle": "Trọn bộ DLC cho tất cả sản phẩm",
+      "fullDlcIntro": "Mọi sản phẩm game bạn sở hữu đều tích hợp sẵn tất cả các gói mở rộng và nội dung bổ sung (DLC).",
       "experienceTitle": "Trải nghiệm tiệm cận 95% so với mua gốc",
       "experienceIntro": "Công nghệ của CentrixG tối ưu trải nghiệm nhưng vẫn giữ mức giá cạnh tranh:",
       "experienceItems": {
+        "fullDlc": "Bao gồm trọn bộ DLC: Tất cả các gói mở rộng, DLC cốt truyện và vật phẩm bổ sung đều được tích hợp đầy đủ mang lại trải nghiệm trọn vẹn nhất.",
         "online": "Hệ thống chỉ tập trung vào việc cung cấp game để chơi offline. Các tính năng yêu cầu kết nối máy chủ chính thức (online, co-op, multiplayer) có thể không được hỗ trợ",
         "achievements": "Đồng bộ thành tựu cá nhân: Hệ thống nhận diện và mở achievement trực tiếp vào hồ sơ Steam cá nhân.",
         "localSave": "Tối ưu lưu trữ cục bộ: Tiến trình chơi được lưu an toàn trên máy tính cá nhân thay vì phụ thuộc vào Steam Cloud."

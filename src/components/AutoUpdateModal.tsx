@@ -17,7 +17,7 @@ export default function AutoUpdateModal() {
 
   useEffect(() => {
     const desktop = window.centrixDesktop;
-    if (!desktop) return;
+    if (!desktop?.isDesktop) return;
 
     // Trigger update check on mount
     desktop.checkForUpdates?.();

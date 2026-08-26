@@ -331,9 +331,12 @@
         "originalAccount": "不干预原始账号：你使用自己的 Steam 账号登录和游玩。",
         "systemRisk": "不增加系统风险：每个方案都经过仔细测试，让 Steam 安全系统始终识别为安全状态。"
       },
+      "fullDlcTitle": "所有产品包含完整 DLC",
+      "fullDlcIntro": "您拥有的每一款游戏产品均默认包含所有拓展包与附加内容 (DLC)。",
       "experienceTitle": "体验接近直接购买的 95%",
       "experienceIntro": "CentrixG 技术在保持价格竞争力的同时优化体验：",
       "experienceItems": {
+        "fullDlc": "包含完整 DLC 内容：包含所有剧情拓展包、DLC 及附加内容，让您获得最完整的游戏体验。",
         "online": "系统仅专注于提供单机离线游玩。要求连接官方服务器的功能（在线、合作、多人模式）可能不支持。",
         "achievements": "同步个人成就：系统会识别并将成就解锁到你的 Steam 个人资料。",
         "localSave": "优化本地存档：游戏进度安全保存在你的电脑上，而不是依赖 Steam Cloud。"

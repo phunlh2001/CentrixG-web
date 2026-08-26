@@ -1,4 +1,4 @@
-import { Shield, Star, Zap } from 'lucide-react';
+import { Layers, Shield, Star, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MainLayout from '../components/MainLayout';
 import NeonBadge from '../components/neon/NeonBadge';
@@ -14,6 +14,7 @@ export default function IntroPage() {
   ];
 
   const experienceItems = [
+    t('desktop.introPage.experienceItems.fullDlc'),
     t('desktop.introPage.experienceItems.online'),
     t('desktop.introPage.experienceItems.achievements'),
     t('desktop.introPage.experienceItems.localSave'),
@@ -66,6 +67,24 @@ export default function IntroPage() {
               </li>
             ))}
           </ul>
+        </NeonCard>
+
+        {/* Full DLC Highlight */}
+        <NeonCard glow="cyan" padding="lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: '#00D4FF1A', border: '1px solid #00D4FF40', color: '#00d4ff' }}
+            >
+              <Layers size={18} />
+            </div>
+            <h2 className="font-bold text-xl" style={{ color: 'var(--system-color-mist-lavender)' }}>
+              {t('desktop.introPage.fullDlcTitle')}
+            </h2>
+          </div>
+          <p className="text-sm leading-relaxed" style={{ color: '#E8E8FF8C' }}>
+            {t('desktop.introPage.fullDlcIntro')}
+          </p>
         </NeonCard>
 
         {/* Experience */}

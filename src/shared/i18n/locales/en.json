@@ -331,9 +331,12 @@
         "originalAccount": "NO interference with the source account: You use your own personal Steam account to sign in and play.",
         "systemRisk": "NO system risk: Every solution is tested carefully so Steam protection systems can always recognize a safe state."
       },
+      "fullDlcTitle": "Full DLC Included For All Games",
+      "fullDlcIntro": "Every game product you access includes all expansion packs and downloadable content (DLCs) by default.",
       "experienceTitle": "An experience close to 95% of buying directly",
       "experienceIntro": "CentrixG technology optimizes your experience while keeping pricing competitive:",
       "experienceItems": {
+        "fullDlc": "Full DLC Content Included: All expansion packs, story DLCs, and bonus content are fully included for the complete gaming experience.",
         "online": "The system strictly focuses on providing games for offline play. Features requiring official server connections (online, co-op, multiplayer) may not be supported.",
         "achievements": "Personal achievement sync: The system recognizes and unlocks achievements directly on your Steam profile.",
         "localSave": "Optimized local saves: Progress is stored safely on your own computer instead of depending on Steam Cloud."
