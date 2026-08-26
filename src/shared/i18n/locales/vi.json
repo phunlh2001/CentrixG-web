@@ -402,6 +402,17 @@
       "activatingProgress": "Đang xử lý kích hoạt game... Vui lòng không đóng ứng dụng.",
       "activateSuccessToast": "Game đã sẵn sàng! Kiểm tra Thư viện Steam của bạn.",
       "activateErrorToast": "Không thể kích hoạt game lúc này. Vui lòng thử lại.",
+      "autoUpdate": {
+        "title": "Yêu cầu Cập nhật Ứng dụng",
+        "subtitle": "Phiên bản mới (v{{version}}) của CentrixG Desktop đã có sẵn.",
+        "message": "Vui lòng cập nhật ứng dụng để tiếp tục sử dụng CentrixG với các tính năng và bản sửa lỗi mới nhất.",
+        "downloading": "Đang tải bản cập nhật... {{percent}}%",
+        "downloadComplete": "Đã tải xong bản cập nhật! Khởi động lại ứng dụng để cài đặt.",
+        "actUpdateNow": "Cập nhật ngay",
+        "actDownloading": "Đang tải...",
+        "actRestartInstall": "Khởi động lại & Cài đặt ngay",
+        "errorMsg": "Không thể tự động cập nhật. Vui lòng kiểm tra kết nối mạng."
+      },
       "more": "xem thêm",
       "less": "Thu gọn",
       "activatedSuccess": "Đã gửi lệnh kích hoạt game sang ứng dụng Steam!",

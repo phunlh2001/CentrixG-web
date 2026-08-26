@@ -402,6 +402,17 @@
       "activatingProgress": "正在处理激活... 请勿关闭应用程序。",
       "activateSuccessToast": "游戏已准备就绪！请检查您的 Steam 库。",
       "activateErrorToast": "当前无法激活游戏，请稍后再试。",
+      "autoUpdate": {
+        "title": "需要软件更新",
+        "subtitle": "CentrixG Desktop 新版本 (v{{version}}) 已发布。",
+        "message": "请更新您的应用程序以继续使用包含最新功能与修补程序的 CentrixG。",
+        "downloading": "正在下载更新... {{percent}}%",
+        "downloadComplete": "更新下载完成！请重启应用程序以安装。",
+        "actUpdateNow": "立即更新",
+        "actDownloading": "下载中...",
+        "actRestartInstall": "重启并立即安装",
+        "errorMsg": "自动更新失败，请检查网络连接。"
+      },
       "more": "更多",
       "less": "收起",
       "activatedSuccess": "激活请求已发送至 Steam 客户端！",

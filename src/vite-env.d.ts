@@ -30,5 +30,23 @@ interface Window {
       appId: number | string,
       type?: string | null,
     ) => Promise<{ success: boolean; message: string }>;
+    checkForUpdates?: () => Promise<void>;
+    startDownloadUpdate?: () => Promise<void>;
+    quitAndInstall?: () => Promise<void>;
+    onUpdateAvailable?: (
+      callback: (info: { version: string; releaseNotes?: string }) => void,
+    ) => () => void;
+    onUpdateNotAvailable?: (
+      callback: (info: { version: string }) => void,
+    ) => () => void;
+    onDownloadProgress?: (
+      callback: (progress: { percent: number }) => void,
+    ) => () => void;
+    onUpdateDownloaded?: (
+      callback: (info: { version: string }) => void,
+    ) => () => void;
+    onUpdateError?: (
+      callback: (error: string) => void,
+    ) => () => void;
   };
 }

@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 
 import { useTranslation } from "react-i18next";
 
+import AutoUpdateModal from "../components/AutoUpdateModal";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import NavigationMenu from "../components/NavigationMenu";
@@ -68,6 +69,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
         isOpen={openSidebar}
         content={<NavigationMenu menu={MENU} onClose={toggleSidebar} />}
       />
+
+      <AutoUpdateModal />
 
       <ToastContainer
         position="bottom-right"

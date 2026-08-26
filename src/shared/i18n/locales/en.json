@@ -402,6 +402,17 @@
       "activatingProgress": "Processing activation... Please do not close the application.",
       "activateSuccessToast": "Game is ready! Check your Steam Library.",
       "activateErrorToast": "Could not activate game right now. Please try again.",
+      "autoUpdate": {
+        "title": "Software Update Required",
+        "subtitle": "A new version (v{{version}}) of CentrixG Desktop is available.",
+        "message": "Please update your application to continue using CentrixG with the latest features and security updates.",
+        "downloading": "Downloading update... {{percent}}%",
+        "downloadComplete": "Update downloaded successfully! Restart application to install.",
+        "actUpdateNow": "Update Now",
+        "actDownloading": "Downloading...",
+        "actRestartInstall": "Restart & Install Now",
+        "errorMsg": "Failed to update automatically. Please check your internet connection."
+      },
       "more": "more",
       "less": "Less",
       "activatedSuccess": "Activation request sent to Steam client!",
