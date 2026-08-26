@@ -258,10 +258,8 @@ const createWindow = () => {
     console.log("[Electron Main] Cleared HTTP session cache.");
   });
 
-  if (process.env.ELECTRON_RENDERER_URL) {
-    void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL, {
-      extraHeaders: "pragma: no-cache\r\nCache-Control: no-cache\r\n",
-    });
+  if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+    void mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
     void mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
