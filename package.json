@@ -1,7 +1,7 @@
 {
   "name": "rebuild",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "./out/main/index.cjs",
   "scripts": {
@@ -42,14 +42,11 @@
       "installerIcon": "public/icon.ico",
       "uninstallerIcon": "public/icon.ico"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "phunlh2001",
-        "repo": "CentrixG-web",
-        "releaseType": "release"
-      }
-    ]
+    "publish": {
+      "provider": "github",
+      "owner": "phunlh2001",
+      "repo": "CentrixG-web"
+    }
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.3.1",
