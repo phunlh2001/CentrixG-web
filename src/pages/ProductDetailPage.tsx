@@ -42,11 +42,14 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { addItem, isInCart } = useCart();
-  const { checkAuth, accessToken } = useAuthStore();
+  const { checkAuth, accessToken, user } = useAuthStore();
+  const currentUser = user || AuthService.getCurrentUser();
+  const isSupervisor = Boolean(
+    currentUser?.role && ["ADMIN", "MOD"].includes(currentUser.role.toUpperCase()),
+  );
 
   const isActivateMode =
-    location.search.includes("mode=activate") ||
-    Boolean((location.state as any)?.isOwned);
+    isSupervisor || location.search.includes("mode=activate") || Boolean((location.state as any)?.isOwned);
 
   const isDesktopApp =
     import.meta.env.VITE_APP_TARGET === "desktop" ||

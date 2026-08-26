@@ -2,7 +2,9 @@ import clsx from "clsx";
 import { Check, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { IProduct } from "../api/productApi";
+import { AuthService } from "../api/authApi";
 import { useCart } from "../shared";
+import { useAuthStore } from "../shared/store/useAuthStore";
 import { Utils } from "../shared/utils";
 import BaseButton from "./ui/BaseButton";
 
@@ -44,6 +46,11 @@ export default function GameCard({
 }: GameCardProps) {
   const { t, i18n } = useTranslation();
   const { addItem, isInCart } = useCart();
+  const { user } = useAuthStore();
+  const currentUser = user || AuthService.getCurrentUser();
+  const isSupervisor = Boolean(
+    currentUser?.role && ["ADMIN", "MOD"].includes(currentUser.role.toUpperCase()),
+  );
 
   if (!loaded) return <GameCardSkeleton />;
 
@@ -72,7 +79,7 @@ export default function GameCard({
         <img
           src={item.imageUrl}
           alt={item.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className={clsx("w-full h-full object-cover", !isSupervisor ? "group-hover:scale-105 transition-transform duration-500" : "")}
         />
         <div className="absolute inset-0 bg-[linear-gradient(to_top,#050510F2_0%,#05051066_45%,transparent_70%)]" />
 
@@ -89,31 +96,33 @@ export default function GameCard({
           </div>
         </div>
 
-        <div className="right-0 bottom-0 left-0 absolute flex justify-center items-center p-3 transition-transform translate-y-full group-hover:translate-y-0 duration-300">
-          <BaseButton
-            variant="custom"
-            className={clsx(
-              "flex justify-center items-center gap-2 backdrop-blur-sm py-2 border rounded-lg w-full font-semibold text-xs transition-all duration-200",
-              alreadyInCart
-                ? "cursor-default border-neon-cyan/20 bg-neon-cyan/8 text-neon-cyan/50"
-                : "cursor-pointer border-neon-cyan/40 bg-neon-cyan/15 text-neon-cyan hover:bg-neon-cyan/20",
-            )}
-            onClick={handleAddToCart}
-            disabled={alreadyInCart}
-          >
-            {alreadyInCart ? (
-              <>
-                <Check size={13} />
-                {t("desktop.cartPage.alreadyInCart")}
-              </>
-            ) : (
-              <>
-                <ShoppingCart size={13} />
-                {t("desktop.productDetailPage.actAddToCart")}
-              </>
-            )}
-          </BaseButton>
-        </div>
+        {!isSupervisor && (
+          <div className="right-0 bottom-0 left-0 absolute flex justify-center items-center p-3 transition-transform translate-y-full group-hover:translate-y-0 duration-300">
+            <BaseButton
+              variant="custom"
+              className={clsx(
+                "flex justify-center items-center gap-2 backdrop-blur-sm py-2 border rounded-lg w-full font-semibold text-xs transition-all duration-200",
+                alreadyInCart
+                  ? "cursor-default border-neon-cyan/20 bg-neon-cyan/8 text-neon-cyan/50"
+                  : "cursor-pointer border-neon-cyan/40 bg-neon-cyan/15 text-neon-cyan hover:bg-neon-cyan/20",
+              )}
+              onClick={handleAddToCart}
+              disabled={alreadyInCart}
+            >
+              {alreadyInCart ? (
+                <>
+                  <Check size={13} />
+                  {t("desktop.cartPage.alreadyInCart")}
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={13} />
+                  {t("desktop.productDetailPage.actAddToCart")}
+                </>
+              )}
+            </BaseButton>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 p-3">
