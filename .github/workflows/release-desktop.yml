@@ -34,4 +34,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_BASE_API_URL: ${{ secrets.VITE_BASE_API_URL }}
         run: yarn release:desktop
