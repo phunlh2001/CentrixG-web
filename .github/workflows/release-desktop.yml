@@ -2,8 +2,6 @@ name: Release Desktop App
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   release:
@@ -36,4 +34,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx cross-env VITE_APP_TARGET=desktop VITE_ENABLE_WEB=false VITE_ENABLE_DESKTOP=true electron-vite build && npx electron-builder --publish always
+        run: yarn release:desktop

@@ -1,7 +1,7 @@
 {
   "name": "rebuild",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "main": "./out/main/index.cjs",
   "scripts": {
@@ -15,7 +15,8 @@
     "prepare:desktop-download": "node -e \"const fs = require('fs'); const path = require('path'); const rel = 'release'; const tgt = 'public/downloads'; if (!fs.existsSync(rel)) { console.error('❌ release directory not found'); process.exit(1); } const exe = fs.readdirSync(rel).find(f => f.endsWith('.exe') && !f.includes('uninstaller')); if (exe) { fs.mkdirSync(tgt, { recursive: true }); fs.copyFileSync(path.join(rel, exe), path.join(tgt, 'CentrixG-Setup.exe')); console.log('✓ Desktop installer copied:', exe, '-> public/downloads/CentrixG-Setup.exe'); } else { console.error('❌ No .exe file found in release directory'); }\"",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "node node_modules/electron/install.js"
+    "postinstall": "node node_modules/electron/install.js",
+    "release:desktop": "yarn build:desktop && electron-builder --publish always"
   },
   "build": {
     "appId": "com.centrixg.desktop",
