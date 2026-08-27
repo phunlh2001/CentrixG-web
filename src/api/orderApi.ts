@@ -18,14 +18,15 @@ export interface IOrderDetails {
 
 export interface ICreateOrderPayload {
   amount: number;
+  productId: string;
 }
 
 export const OrderService = {
-  createOrder: async (amount: number): Promise<BaseApiResponse<IOrderDetails> | undefined> => {
+  createOrder: async (amount: number, productId: string): Promise<BaseApiResponse<IOrderDetails> | undefined> => {
     try {
       const response = await HttpClient.post<IOrderDetails, ICreateOrderPayload>(
         BASE_URL,
-        { amount },
+        { amount, productId },
       );
       return response;
     } catch (error: any) {

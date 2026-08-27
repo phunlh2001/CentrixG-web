@@ -17,11 +17,13 @@ import NeonButton from "../neon/NeonButton";
 
 type SePayPaymentFormProps = {
   amount: number;
+  productId: string;
   onSubmit?: () => void;
 };
 
 export default function SePayPaymentForm({
   amount,
+  productId,
   onSubmit,
 }: SePayPaymentFormProps) {
   const { t } = useTranslation();
@@ -50,7 +52,7 @@ export default function SePayPaymentForm({
 
       // 2. If no active pending order exists, create a new order
       if (!order) {
-        const createRes = await OrderService.createOrder(amount);
+        const createRes = await OrderService.createOrder(amount, productId);
         if (createRes && createRes.success && createRes.data) {
           order = createRes.data;
         } else if (createRes?.data) {
@@ -79,7 +81,7 @@ export default function SePayPaymentForm({
 
   useEffect(() => {
     initOrder();
-  }, [amount]);
+  }, [amount, productId]);
 
   // Timer countdown
   useEffect(() => {

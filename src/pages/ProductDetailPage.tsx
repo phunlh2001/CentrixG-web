@@ -249,7 +249,7 @@ export default function ProductDetailPage() {
             });
           } else if (normType.includes("ROCKSTAR")) {
             msg = t("desktop.productDetailPage.activateRockstarSuccess", {
-              defaultValue: "Activate Rockstar  successfully!",
+              defaultValue: "Activate Rockstar successfully!",
             });
           }
           toast.success(msg);
