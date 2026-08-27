@@ -28,6 +28,14 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Download InstallApp.exe from external repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p bin
+          gh release download --repo phunlh2001/Install-Steam-Game --pattern "InstallApp.exe" --dir bin --clobber
+        shell: bash
+
       - name: Build Electron App & Publish Release to GitHub
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
