@@ -11,6 +11,8 @@ import SearchBar from "../components/neon/SearchBar";
 import Showcase from "../components/Showcase";
 import MainLayout from "../layout/MainLayout";
 
+import PriceSortButton, { SortOrder } from "@/components/ui/PriceSortButton";
+
 function StatBlock({ value, label }: { value: string; label: string }) {
   return (
     <div className="px-5 text-center">
@@ -31,6 +33,7 @@ export default function HomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [orderByPrice, setOrderByPrice] = useState<SortOrder>(undefined);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [heroProducts, setHeroProducts] = useState<IProduct[]>([]);
   const [isHeroLoading, setIsHeroLoading] = useState(true);
@@ -84,6 +87,7 @@ export default function HomePage() {
         searchQuery,
         page,
         pageSize,
+        orderByPrice,
       });
 
       if (
@@ -110,7 +114,7 @@ export default function HomePage() {
 
   useEffect(() => {
     loadData();
-  }, [searchQuery, page]);
+  }, [searchQuery, page, orderByPrice]);
 
   return (
     <MainLayout>
@@ -174,7 +178,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* === Search section === */}
+        {/* === Search & Filter Section === */}
         <section>
           <div className="mx-auto max-w-2xl">
             <p
@@ -195,13 +199,34 @@ export default function HomePage() {
           </div>
         </section>
 
-        <Showcase
-          eyebrow={t("desktop.homePage.hotGamesEyebrow")}
-          title={t("desktop.homePage.hotGames")}
-          list={products}
-          paginated={false}
-          onClickCard={(item) => navigate(`/products/${item.id}`)}
-        />
+        {/* Product Catalog Showcase Header with Price Sort Button */}
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-text-primary/10 pb-4">
+            <div>
+              <p className="font-bold text-xs uppercase tracking-[0.2em] text-neon-cyan/80 mb-1">
+                {t("desktop.homePage.hotGamesEyebrow")}
+              </p>
+              <h2 className="font-extrabold text-2xl tracking-tight text-text-primary">
+                {t("desktop.homePage.hotGames")}
+              </h2>
+            </div>
+            <PriceSortButton
+              value={orderByPrice}
+              onChange={(newOrder) => {
+                setOrderByPrice(newOrder);
+                setPage(1);
+              }}
+            />
+          </div>
+
+          <Showcase
+            eyebrow=""
+            title=""
+            list={products}
+            paginated={false}
+            onClickCard={(item) => navigate(`/products/${item.id}`)}
+          />
+        </section>
 
         {totalPages > 1 && (
           <NeonPagination

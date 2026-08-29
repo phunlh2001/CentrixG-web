@@ -8,6 +8,7 @@ export type ProductQueryParams = {
   page?: number;
   pageSize?: number;
   includeHidden?: boolean;
+  orderByPrice?: "asc" | "desc";
 };
 
 export interface IPricing {
@@ -88,6 +89,7 @@ export const ProductService = {
     page = 1,
     pageSize = 10,
     includeHidden = false,
+    orderByPrice,
   }: ProductQueryParams = {}): Promise<BaseApiResponse<IPaginatedProducts> | undefined> => {
     try {
       const response = await HttpClient.get<IPaginatedProducts>(BASE_URL, {
@@ -96,6 +98,7 @@ export const ProductService = {
           page,
           pageSize,
           ...(searchQuery?.trim() ? { search: searchQuery.trim() } : {}),
+          ...(orderByPrice ? { orderByPrice } : {}),
         },
       });
 

@@ -21,6 +21,8 @@ import SectionHeader from "../components/neon/SectionHeader";
 import Showcase from "../components/ui/Showcase";
 import { useDebounce } from "../shared";
 
+import PriceSortButton, { SortOrder } from "../components/ui/PriceSortButton";
+
 const CATEGORIES_DEFAULT_LIMIT = 10;
 
 export default function CategoryPage() {
@@ -31,6 +33,7 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [orderByPrice, setOrderByPrice] = useState<SortOrder>(undefined);
   const pageSize = 12;
 
   // Category Filtering & Search State
@@ -49,6 +52,7 @@ export default function CategoryPage() {
       const response = await ProductService.get({
         page,
         pageSize: 100, // Fetch broader set to build category list and catalog
+        orderByPrice,
       });
 
       if (response && response.success && response.statusCode === 200 && response.data) {
@@ -68,7 +72,7 @@ export default function CategoryPage() {
 
   useEffect(() => {
     loadCategoryData();
-  }, []);
+  }, [orderByPrice]);
 
   // Extract all unique categories & compute counts across catalog
   const { allCategories, categoryCounts } = useMemo(() => {
@@ -351,6 +355,27 @@ export default function CategoryPage() {
 
           {/* ================= MAIN BODY (PRODUCTS CATALOG FOCUS) ================= */}
           <div className="lg:col-span-9 flex flex-col gap-5">
+            {/* Control Bar: Title & Price Sort Button */}
+            <div className="flex items-center justify-between border-b border-text-primary/10 pb-3">
+              <div>
+                <p className="font-bold text-xs uppercase tracking-wider text-neon-cyan">
+                  {selectedCategories.length > 0
+                    ? selectedCategories.join(", ")
+                    : t("desktop.categoryPage.allCategories", { defaultValue: "All Categories" })}
+                </p>
+                <h2 className="font-extrabold text-xl tracking-tight text-text-primary">
+                  {t("desktop.categoryPage.catalogTitle", { defaultValue: "Game Catalog" })}
+                </h2>
+              </div>
+              <PriceSortButton
+                value={orderByPrice}
+                onChange={(newOrder) => {
+                  setOrderByPrice(newOrder);
+                  setPage(1);
+                }}
+              />
+            </div>
+
             {/* Catalog Showcase (No Duplicate Filter Bar Above) */}
             {isLoading ? (
               <div className="py-24 text-center text-text-primary/50 text-sm">
@@ -369,12 +394,8 @@ export default function CategoryPage() {
               </NeonCard>
             ) : (
               <Showcase
-                eyebrow={
-                  selectedCategories.length > 0
-                    ? selectedCategories.join(", ")
-                    : t("desktop.categoryPage.allCategories", { defaultValue: "All Categories" })
-                }
-                title={t("desktop.categoryPage.catalogTitle", { defaultValue: "Game Catalog" })}
+                eyebrow=""
+                title=""
                 list={paginatedProducts}
                 paginated={false}
                 onClickCard={(item) => navigate(`/products/${item.id}`)}
