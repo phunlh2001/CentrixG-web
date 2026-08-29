@@ -118,7 +118,7 @@ export default function PaymentPage() {
                 </h3>
                 <SePayPaymentForm
                   amount={subtotal}
-                  productId={items[0]?.id || ""}
+                  productIds={Array.from(new Set(items.map((item) => item.id)))}
                   onSubmit={handleSubmit}
                 />
               </NeonCard>
