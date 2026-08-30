@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import {
   ArrowLeft,
   AtSign,
@@ -5,6 +6,7 @@ import {
   Eye,
   EyeOff,
   KeyRound,
+  LoaderCircle,
   Lock,
   MailCheck,
   RotateCcw,
@@ -13,6 +15,8 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { UserService } from "../api/userApi";
 import MainLayout from "../components/MainLayout";
 import NeonButton from "../components/neon/NeonButton";
 import NeonCard from "../components/neon/NeonCard";
@@ -32,6 +36,8 @@ export default function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   // OTP Timer State
   const [resendTimer, setResendTimer] = useState<number>(60);
@@ -82,13 +88,31 @@ export default function ForgotPasswordPage() {
     };
   }, [timerActive, resendTimer]);
 
-  // Handle Step 1 Submit (Send Code)
-  const handleStep1Submit = (e: React.FormEvent) => {
+  // Handle Step 1 Submit (Send Code via API)
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    setStep(2);
-    setResendTimer(60);
-    setTimerActive(true);
+
+    setIsLoading(true);
+    try {
+      const res = await UserService.sendResetCode({ email: email.trim() });
+      if (res && res.success && res.data) {
+        if (res.data.hashedCode) {
+          localStorage.setItem("reset_hashed_code", res.data.hashedCode);
+        }
+        localStorage.setItem("reset_email", email.trim());
+        toast.success(res.data.message || "Reset verification code sent successfully to email");
+        setStep(2);
+        setResendTimer(60);
+        setTimerActive(true);
+      } else {
+        toast.error(res?.message || "Failed to send verification code.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to send verification code.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // OTP Digit Change Handler
@@ -128,24 +152,94 @@ export default function ForgotPasswordPage() {
     otpInputRefs.current[targetIndex]?.focus();
   };
 
-  // Handle Resend Code
-  const handleResendCode = () => {
-    setResendTimer(60);
-    setTimerActive(true);
+  // Handle Resend Code via API
+  const handleResendCode = async () => {
+    if (isResending || timerActive) return;
+    const targetEmail = email.trim() || localStorage.getItem("reset_email") || "";
+    if (!targetEmail) return;
+
+    setIsResending(true);
+    try {
+      const res = await UserService.sendResetCode({ email: targetEmail });
+      if (res && res.success && res.data) {
+        if (res.data.hashedCode) {
+          localStorage.setItem("reset_hashed_code", res.data.hashedCode);
+        }
+        setOtpDigits(Array(6).fill(""));
+        toast.success(res.data.message || "New verification code sent successfully to email");
+        setResendTimer(60);
+        setTimerActive(true);
+      } else {
+        toast.error(res?.message || "Failed to resend verification code.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to resend verification code.");
+    } finally {
+      setIsResending(false);
+    }
   };
 
-  // Handle Step 2 Submit (Verify OTP)
+  // Handle Step 2 Submit (Verify OTP via bcrypt)
   const handleStep2Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (otpDigits.join("").length < 6) return;
-    setStep(3);
+    const code = otpDigits.join("");
+    if (code.length < 6) return;
+
+    setIsLoading(true);
+    try {
+      const savedHashedCode = localStorage.getItem("reset_hashed_code");
+      if (!savedHashedCode) {
+        toast.error("Verification code expired or not found. Please request a new code.");
+        setStep(1);
+        return;
+      }
+
+      // Decode the hash and compare it using bcrypt
+      const isMatch = bcrypt.compareSync(code, savedHashedCode);
+      if (!isMatch) {
+        toast.error("Invalid verification code. Please check your email and try again.");
+        return;
+      }
+
+      toast.success("Verification code confirmed successfully!");
+      setStep(3);
+    } catch (err: any) {
+      console.error("Error verifying code hash:", err);
+      toast.error("Failed to verify code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Handle Step 3 Submit (Reset Password)
-  const handleStep3Submit = (e: React.FormEvent) => {
+  // Handle Step 3 Submit (Reset Password via API)
+  const handleStep3Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword || !passwordsMatch) return;
-    setStep(4);
+
+    const code = otpDigits.join("");
+    const targetEmail = email.trim() || localStorage.getItem("reset_email") || "";
+
+    setIsLoading(true);
+    try {
+      const res = await UserService.resetPassword({
+        email: targetEmail,
+        code,
+        newPassword,
+      });
+
+      if (res && res.success) {
+        localStorage.removeItem("reset_hashed_code");
+        localStorage.removeItem("reset_email");
+        toast.success(res.data?.message || res.message || "Password reset successfully!");
+        setStep(4);
+      } else {
+        toast.error(res?.message || "Failed to reset password.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to reset password.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -242,8 +336,15 @@ export default function ForgotPasswordPage() {
                   </div>
                 </div>
 
-                <NeonButton type="submit" variant="primary" size="lg" fullWidth>
-                  {t("desktop.forgotPasswordPage.sendCode")}
+                <NeonButton type="submit" variant="primary" size="lg" fullWidth disabled={isLoading}>
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoaderCircle size={16} className="animate-spin" />
+                      Sending Code...
+                    </span>
+                  ) : (
+                    t("desktop.forgotPasswordPage.sendCode")
+                  )}
                 </NeonButton>
               </form>
 
@@ -315,10 +416,11 @@ export default function ForgotPasswordPage() {
                     <button
                       type="button"
                       onClick={handleResendCode}
-                      className="flex items-center gap-1 font-bold text-neon-cyan hover:underline"
+                      disabled={isResending}
+                      className="flex items-center gap-1 font-bold text-neon-cyan hover:underline disabled:opacity-50"
                     >
-                      <RotateCcw size={12} />
-                      {t("desktop.forgotPasswordPage.resendBtn")}
+                      <RotateCcw size={12} className={isResending ? "animate-spin" : ""} />
+                      {isResending ? "Resending..." : t("desktop.forgotPasswordPage.resendBtn")}
                     </button>
                   )}
                 </div>
@@ -328,9 +430,16 @@ export default function ForgotPasswordPage() {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={otpDigits.join("").length < 6}
+                  disabled={otpDigits.join("").length < 6 || isLoading}
                 >
-                  {t("desktop.forgotPasswordPage.verifyCode")}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoaderCircle size={16} className="animate-spin" />
+                      Verifying Code...
+                    </span>
+                  ) : (
+                    t("desktop.forgotPasswordPage.verifyCode")
+                  )}
                 </NeonButton>
               </form>
             </div>
@@ -450,9 +559,16 @@ export default function ForgotPasswordPage() {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!newPassword || !passwordsMatch}
+                  disabled={!newPassword || !passwordsMatch || isLoading}
                 >
-                  {t("desktop.forgotPasswordPage.resetPasswordBtn")}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoaderCircle size={16} className="animate-spin" />
+                      Resetting Password...
+                    </span>
+                  ) : (
+                    t("desktop.forgotPasswordPage.resetPasswordBtn")
+                  )}
                 </NeonButton>
               </form>
             </div>

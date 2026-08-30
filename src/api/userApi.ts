@@ -53,6 +53,26 @@ export interface IUserGame {
   updatedAt: string;
 }
 
+export interface ISendResetCodePayload {
+  email: string;
+}
+
+export interface ISendResetCodeResponse {
+  email: string;
+  hashedCode: string;
+  message: string;
+}
+
+export interface IResetPasswordPayload {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface IResetPasswordResponse {
+  message: string;
+}
+
 export const UserService = {
   get: async (): Promise<BaseApiResponse<IUserGame[]> | undefined> => {
     try {
@@ -61,6 +81,34 @@ export const UserService = {
     } catch (error) {
       console.error("Failed to fetch user User API:", error);
       return undefined;
+    }
+  },
+
+  sendResetCode: async (
+    payload: ISendResetCodePayload,
+  ): Promise<BaseApiResponse<ISendResetCodeResponse> | undefined> => {
+    try {
+      const response = await HttpClient.post<ISendResetCodeResponse, ISendResetCodePayload>(
+        "user/send-reset-code",
+        payload,
+      );
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to send verification code");
+    }
+  },
+
+  resetPassword: async (
+    payload: IResetPasswordPayload,
+  ): Promise<BaseApiResponse<IResetPasswordResponse> | undefined> => {
+    try {
+      const response = await HttpClient.post<IResetPasswordResponse, IResetPasswordPayload>(
+        "user/reset-password",
+        payload,
+      );
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to reset password");
     }
   },
 };
