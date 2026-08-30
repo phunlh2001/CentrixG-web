@@ -11,7 +11,7 @@ export const APP_CONFIG = {
   },
   contact: {
     discordTitle: "CentrixG Community",
-    discord: "https://discord.gg/fZAXKdYsQ",
+    discord: "https://discord.gg/3W2aJs7dUw",
     facebook: "https://www.facebook.com/profile.php?id=61593623010878",
     tiktok: "https://tiktok.com/@centrixg",
     email: "centrixg.gamingstore@gmail.com",
