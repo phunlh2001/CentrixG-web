@@ -80,7 +80,7 @@ export const isValidProduct = (item: IProduct): boolean => {
   const usd = Number(pricing.usd || 0);
   const cny = Number(pricing.cny || 0);
 
-  return vnd > 0 && usd > 0 && cny > 0;
+  return vnd >= 0 && usd >= 0 && cny >= 0;
 };
 
 export const ProductService = {

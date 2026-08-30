@@ -58,9 +58,14 @@ export default function GameCard({
   const categoryId = getProductCategory(item);
   const categories = item.categories || [];
   const alreadyInCart = isInCart(item.id);
+  const isFreeGame = Number(item.pricing?.vnd || 0) === 0;
 
   const handleAddToCart = (event: React.MouseEvent) => {
     event.stopPropagation();
+    if (isFreeGame) {
+      onClick?.();
+      return;
+    }
     addItem({
       id: item.id,
       name: item.name,
@@ -94,6 +99,11 @@ export default function GameCard({
               </span>
             ))}
           </div>
+          {isFreeGame && (
+            <span className="px-1.5 py-0.5 rounded font-bold text-[9px] uppercase tracking-wide border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 shadow-[0_0_6px_#10B98133]">
+              {t("desktop.productDetailPage.free", { defaultValue: "FREE" })}
+            </span>
+          )}
         </div>
 
         {!isSupervisor && (
@@ -102,14 +112,18 @@ export default function GameCard({
               variant="custom"
               className={clsx(
                 "flex justify-center items-center gap-2 backdrop-blur-sm py-2 border rounded-lg w-full font-semibold text-xs transition-all duration-200",
-                alreadyInCart
+                isFreeGame
+                  ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                  : alreadyInCart
                   ? "cursor-default border-neon-cyan/20 bg-neon-cyan/8 text-neon-cyan/50"
                   : "cursor-pointer border-neon-cyan/40 bg-neon-cyan/15 text-neon-cyan hover:bg-neon-cyan/20",
               )}
               onClick={handleAddToCart}
-              disabled={alreadyInCart}
+              disabled={!isFreeGame && alreadyInCart}
             >
-              {alreadyInCart ? (
+              {isFreeGame ? (
+                t("desktop.productDetailPage.claim", { defaultValue: "Claim Game" })
+              ) : alreadyInCart ? (
                 <>
                   <Check size={13} />
                   {t("desktop.cartPage.alreadyInCart")}
@@ -137,9 +151,15 @@ export default function GameCard({
         </h3>
 
         <div className="flex items-baseline gap-2 mt-auto">
-          <span className="font-black text-neon-cyan text-base [text-shadow:0_0_8px_#00D4FF66]">
-            {Utils.convert.currency(price, i18n.language)}
-          </span>
+          {isFreeGame ? (
+            <span className="font-bold text-emerald-400 text-xs tracking-wide [text-shadow:0_0_6px_#10B98155]">
+              {t("desktop.productDetailPage.free", { defaultValue: "FREE" })}
+            </span>
+          ) : (
+            <span className="font-black text-neon-cyan text-base [text-shadow:0_0_8px_#00D4FF66]">
+              {Utils.convert.currency(price, i18n.language)}
+            </span>
+          )}
         </div>
       </div>
     </article>

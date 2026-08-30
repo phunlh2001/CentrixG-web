@@ -7,7 +7,9 @@ import {
   Check,
   ChevronLeft,
   Download,
+  Gift,
   Layers,
+  LoaderCircle,
   Monitor,
   Package,
   ShoppingCart,
@@ -20,6 +22,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthService } from "../api/authApi";
 import { IProduct, isValidProduct, ProductService } from "../api/productApi";
+import { UserService } from "../api/userApi";
 import MainLayout from "../components/MainLayout";
 import NeonBadge from "../components/neon/NeonBadge";
 import NeonButton from "../components/neon/NeonButton";
@@ -64,6 +67,8 @@ export default function ProductDetailPage() {
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isExecutingActivation, setIsExecutingActivation] = useState(false);
   const [isTypeButtonDisabled, setIsTypeButtonDisabled] = useState(true);
+  const [isUserOwned, setIsUserOwned] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const CATEGORIES_MAX_VISIBLE = 5;
 
@@ -76,6 +81,33 @@ export default function ProductDetailPage() {
       }
     }
   }, [isActivateMode, checkAuth, navigate]);
+
+  // Check if product is already in user library
+  useEffect(() => {
+    const checkUserLibrary = async () => {
+      if (product && AuthService.isAuthenticated()) {
+        try {
+          const res = await UserService.get();
+          if (res && res.success && res.data) {
+            const userGames = res.data;
+            const owned = userGames.some(
+              (g) =>
+                g.productId === product.id ||
+                g.product?.id === product.id ||
+                Number(g.product?.appId) === Number(product.appId) ||
+                Number(g.manifest?.appId) === Number(product.appId),
+            );
+            if (owned) {
+              setIsUserOwned(true);
+            }
+          }
+        } catch {
+          // ignore error if unauthenticated or offline
+        }
+      }
+    };
+    checkUserLibrary();
+  }, [product]);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -158,6 +190,43 @@ export default function ProductDetailPage() {
       handleAddToCart();
     }
     navigate("/payment");
+  };
+
+  const handleClaimFreeGame = async () => {
+    if (!product) return;
+    if (!AuthService.isAuthenticated()) {
+      navigate("/auth", { state: { from: location } });
+      return;
+    }
+    setIsClaiming(true);
+    try {
+      const appIdNum = Number(product.appId);
+      const res = await UserService.claimFreeGame(appIdNum);
+      if (res && (res.success || res.data)) {
+        toast.success(
+          t("desktop.productDetailPage.claimSuccess", {
+            defaultValue: "Game added to your library successfully!",
+          }),
+        );
+        setIsUserOwned(true);
+      } else {
+        toast.error(
+          res?.message ||
+            t("desktop.productDetailPage.claimFailed", {
+              defaultValue: "Failed to claim free game.",
+            }),
+        );
+      }
+    } catch (error: any) {
+      toast.error(
+        error.message ||
+          t("desktop.productDetailPage.claimFailed", {
+            defaultValue: "Failed to claim free game.",
+          }),
+      );
+    } finally {
+      setIsClaiming(false);
+    }
   };
 
   const handleDownloadLauncher = () => {
@@ -435,117 +504,154 @@ export default function ProductDetailPage() {
                 );
               })()}
 
-            {/* Buy / Add to Cart / Activate Box */}
-            <NeonCard glow="cyan" padding="md">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 pb-4 border-b border-text-primary/10">
-                {isActivateMode ? (
-                  <div>
-                    <NeonBadge color="green" dot className="text-xs font-bold">
-                      <Check size={12} />
-                      {t("desktop.productDetailPage.ownedStatus", {
-                        defaultValue: "Owned in Library",
-                      })}
-                    </NeonBadge>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-black text-3xl text-neon-cyan drop-shadow-[0_0_16px_#00D4FF66]">
-                      {Utils.convert.currency(price, i18n.language)}
-                    </p>
-                    <p className="text-[11px] mt-0.5 text-neon-cyan/70">
-                      {t("desktop.productDetailPage.priceNote")}
-                    </p>
-                  </div>
-                )}
+            {/* Buy / Add to Cart / Claim / Activate Box */}
+            {(() => {
+              const isFreeGame = Number(product.pricing?.vnd || 0) === 0;
+              const showActivation = isActivateMode || isUserOwned;
 
-                <div className="flex sm:flex-row flex-col gap-2.5 sm:w-auto w-full">
-                  {isActivateMode ? (
-                    isDesktopApp ? (
-                      <div className="flex flex-wrap items-center gap-2.5">
+              return (
+                <NeonCard glow="cyan" padding="md">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 pb-4 border-b border-text-primary/10">
+                    {showActivation ? (
+                      <div>
+                        <NeonBadge color="green" dot className="text-xs font-bold">
+                          <Check size={12} />
+                          {t("desktop.productDetailPage.ownedStatus", {
+                            defaultValue: "Owned in Library",
+                          })}
+                        </NeonBadge>
+                      </div>
+                    ) : isFreeGame ? (
+                      <div>
+                        <p className="font-black text-2xl text-emerald-400 drop-shadow-[0_0_12px_#10B98166]">
+                          {t("desktop.productDetailPage.free", { defaultValue: "FREE" })}
+                        </p>
+                        <p className="text-[11px] mt-0.5 text-emerald-400/80">
+                          {t("desktop.productDetailPage.freeClaimNote", {
+                            defaultValue: "Free to claim and add to library",
+                          })}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="font-black text-3xl text-neon-cyan drop-shadow-[0_0_16px_#00D4FF66]">
+                          {Utils.convert.currency(price, i18n.language)}
+                        </p>
+                        <p className="text-[11px] mt-0.5 text-neon-cyan/70">
+                          {t("desktop.productDetailPage.priceNote")}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex sm:flex-row flex-col gap-2.5 sm:w-auto w-full">
+                      {showActivation ? (
+                        isDesktopApp ? (
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <NeonButton
+                              type="button"
+                              variant="primary"
+                              size="md"
+                              startIcon={<Zap size={16} />}
+                              onClick={handleActivateClick}
+                            >
+                              {t("desktop.productDetailPage.actPrepareGame", {
+                                defaultValue: "Prepare Game",
+                              })}
+                            </NeonButton>
+
+                            {launcherType && (
+                              <NeonButton
+                                type="button"
+                                variant="secondary"
+                                size="md"
+                                startIcon={<Zap size={16} />}
+                                onClick={handleConfirmActivateType}
+                                disabled={isTypeButtonDisabled || isExecutingActivation}
+                              >
+                                {t("desktop.productDetailPage.actActivateType", {
+                                  type: launcherType,
+                                  defaultValue: `Activate ${launcherType}`,
+                                })}
+                              </NeonButton>
+                            )}
+                          </div>
+                        ) : (
+                          <NeonButton
+                            type="button"
+                            variant="primary"
+                            size="md"
+                            startIcon={<Download size={16} />}
+                            onClick={handleDownloadLauncher}
+                          >
+                            {t("desktop.productDetailPage.actDownloadLauncher", {
+                              defaultValue: "Download Launcher",
+                            })}
+                          </NeonButton>
+                        )
+                      ) : isFreeGame ? (
                         <NeonButton
                           type="button"
                           variant="primary"
                           size="md"
-                          startIcon={<Zap size={16} />}
-                          onClick={handleActivateClick}
+                          startIcon={
+                            isClaiming ? (
+                              <LoaderCircle size={16} className="animate-spin" />
+                            ) : (
+                              <Gift size={16} />
+                            )
+                          }
+                          onClick={handleClaimFreeGame}
+                          disabled={isClaiming}
                         >
-                          {t("desktop.productDetailPage.actPrepareGame", {
-                            defaultValue: "Prepare Game",
-                          })}
+                          {isClaiming
+                            ? t("desktop.productDetailPage.claiming", { defaultValue: "Claiming..." })
+                            : t("desktop.productDetailPage.claim", { defaultValue: "Claim Game" })}
                         </NeonButton>
-
-                        {launcherType && (
+                      ) : (
+                        <>
+                          <NeonButton
+                            type="button"
+                            variant="primary"
+                            size="md"
+                            startIcon={alreadyInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
+                            onClick={handleAddToCart}
+                            disabled={alreadyInCart}
+                          >
+                            {alreadyInCart
+                              ? t("desktop.cartPage.alreadyInCart")
+                              : t("desktop.productDetailPage.actAddToCart")}
+                          </NeonButton>
                           <NeonButton
                             type="button"
                             variant="secondary"
                             size="md"
-                            startIcon={<Zap size={16} />}
-                            onClick={handleConfirmActivateType}
-                            disabled={isTypeButtonDisabled || isExecutingActivation}
+                            onClick={handleBuyNow}
                           >
-                            {t("desktop.productDetailPage.actActivateType", {
-                              type: launcherType,
-                              defaultValue: `Activate ${launcherType}`,
-                            })}
+                            {t("desktop.productDetailPage.actBuyNow")}
                           </NeonButton>
-                        )}
-                      </div>
-                    ) : (
-                      <NeonButton
-                        type="button"
-                        variant="primary"
-                        size="md"
-                        startIcon={<Download size={16} />}
-                        onClick={handleDownloadLauncher}
-                      >
-                        {t("desktop.productDetailPage.actDownloadLauncher", {
-                          defaultValue: "Download Launcher",
-                        })}
-                      </NeonButton>
-                    )
-                  ) : (
-                    <>
-                      <NeonButton
-                        type="button"
-                        variant="primary"
-                        size="md"
-                        startIcon={alreadyInCart ? <Check size={16} /> : <ShoppingCart size={16} />}
-                        onClick={handleAddToCart}
-                        disabled={alreadyInCart}
-                      >
-                        {alreadyInCart
-                          ? t("desktop.cartPage.alreadyInCart")
-                          : t("desktop.productDetailPage.actAddToCart")}
-                      </NeonButton>
-                      <NeonButton
-                        type="button"
-                        variant="secondary"
-                        size="md"
-                        onClick={handleBuyNow}
-                      >
-                        {t("desktop.productDetailPage.actBuyNow")}
-                      </NeonButton>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Features checklist */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                {[
-                  "Instant Steam Delivery",
-                  "Official Game License",
-                  "Works Worldwide",
-                ].map((f) => (
-                  <div key={f} className="flex items-center gap-2 text-text-primary/80">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan">
-                      <Check size={10} />
+                        </>
+                      )}
                     </div>
-                    <span>{f}</span>
                   </div>
-                ))}
-              </div>
-            </NeonCard>
+
+                  {/* Features checklist */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    {[
+                      "Instant Steam Delivery",
+                      "Official Game License",
+                      "Works Worldwide",
+                    ].map((f) => (
+                      <div key={f} className="flex items-center gap-2 text-text-primary/80">
+                        <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan">
+                          <Check size={10} />
+                        </div>
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </NeonCard>
+              );
+            })()}
 
             {/* About This Product Section */}
             <NeonCard glow="purple" padding="md">

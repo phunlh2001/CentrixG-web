@@ -111,4 +111,16 @@ export const UserService = {
       throw new Error(error.message || "Failed to reset password");
     }
   },
+
+  claimFreeGame: async (
+    appId: number,
+  ): Promise<BaseApiResponse<IUserGame> | undefined> => {
+    try {
+      const numericAppId = Number(appId);
+      const response = await HttpClient.post<IUserGame>(`user/games/add/${numericAppId}`);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to claim free game");
+    }
+  },
 };
