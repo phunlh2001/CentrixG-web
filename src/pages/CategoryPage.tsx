@@ -50,8 +50,8 @@ export default function CategoryPage() {
     setIsLoading(true);
     try {
       const response = await ProductService.get({
-        page,
-        pageSize: 100, // Fetch broader set to build category list and catalog
+        page: 1,
+        limit: null,
         orderByPrice,
       });
 

@@ -6,9 +6,9 @@ const BASE_URL = "products";
 export type ProductQueryParams = {
   searchQuery?: string;
   page?: number;
-  pageSize?: number;
-  includeHidden?: boolean;
+  limit?: number | null;
   orderByPrice?: "asc" | "desc";
+  disabled?: boolean;
 };
 
 export interface IPricing {
@@ -71,7 +71,7 @@ export interface IPurchaseProductPayload {
  */
 export const isValidProduct = (item: IProduct): boolean => {
   if (!item) return false;
-  if (item.isDelete || item.invisible || item.disabled) return false;
+  if (item.isDelete || item.disabled) return false;
 
   const { pricing } = item;
   if (!pricing) return false;
@@ -86,17 +86,15 @@ export const isValidProduct = (item: IProduct): boolean => {
 export const ProductService = {
   get: async ({
     searchQuery,
+    limit,
     page = 1,
-    pageSize = 10,
-    includeHidden = false,
     orderByPrice,
   }: ProductQueryParams = {}): Promise<BaseApiResponse<IPaginatedProducts> | undefined> => {
     try {
       const response = await HttpClient.get<IPaginatedProducts>(BASE_URL, {
         params: {
-          includeHidden,
           page,
-          pageSize,
+          ...(limit !== undefined ? { limit } : {}),
           ...(searchQuery?.trim() ? { search: searchQuery.trim() } : {}),
           ...(orderByPrice ? { orderByPrice } : {}),
         },

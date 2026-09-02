@@ -128,7 +128,7 @@ export default function ProductDetailPage() {
       }
 
       // Fetch similar products from real API
-      const listResponse = await ProductService.get({ page: 1, pageSize: 12 });
+      const listResponse = await ProductService.get({ page: 1, limit: 12 });
       if (
         listResponse &&
         listResponse.success &&
@@ -173,7 +173,7 @@ export default function ProductDetailPage() {
 
   const price = getProductPrice(product, i18n.language);
   const alreadyInCart = isInCart(product.id);
-  const imageUrls = [product.imageUrl, ...(product.imageUrl ? [product.imageUrl] : [])];
+  const imageUrls = product.imageUrl.split('@');
 
   const handleAddToCart = () => {
     addItem({
@@ -427,7 +427,7 @@ export default function ProductDetailPage() {
               {/* Main Image */}
               <div className="relative rounded-lg overflow-hidden mb-2.5 aspect-[16/9] max-h-64 sm:max-h-72">
                 <img
-                  src={imageUrls[activeSlide] || product.imageUrl}
+                  src={imageUrls[activeSlide] || imageUrls[0]}
                   alt={product.name}
                   className="w-full h-full object-cover transition-all duration-300"
                 />

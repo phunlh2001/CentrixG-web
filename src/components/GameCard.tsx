@@ -54,6 +54,7 @@ export default function GameCard({
 
   if (!loaded) return <GameCardSkeleton />;
 
+  const imageUrl = item.imageUrl.split('@')[0];
   const price = getProductPrice(item, i18n.language);
   const categoryId = getProductCategory(item);
   const categories = item.categories || [];
@@ -69,7 +70,7 @@ export default function GameCard({
     addItem({
       id: item.id,
       name: item.name,
-      imageUrl: item.imageUrl,
+      imageUrl,
       price,
       categoryName: categoryId,
     });
@@ -82,7 +83,7 @@ export default function GameCard({
     >
       <div className="relative w-full aspect-[3/4] overflow-hidden">
         <img
-          src={item.imageUrl}
+          src={imageUrl}
           alt={item.name}
           className={clsx("w-full h-full object-cover", !isSupervisor ? "group-hover:scale-105 transition-transform duration-500" : "")}
         />

@@ -43,7 +43,7 @@ export default function HomePage() {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
   });
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 12;
+  const limit = 12;
 
   // Persist current page to localStorage whenever it changes
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function HomePage() {
       try {
         const response = await ProductService.get({
           page: 1,
-          pageSize: 10,
+          limit,
         });
 
         if (
@@ -86,7 +86,7 @@ export default function HomePage() {
       const response = await ProductService.get({
         searchQuery,
         page,
-        pageSize,
+        limit,
         orderByPrice,
       });
 
