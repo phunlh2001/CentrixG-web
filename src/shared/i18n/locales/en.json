@@ -15,6 +15,7 @@
       "signIn": "Sign in",
       "cart": "Cart",
       "myLibrary": "My Library",
+      "library": "Library",
       "searchPlaceholder": "Search products",
       "navLinks": {
         "home": "Home",
@@ -43,6 +44,7 @@
       "signIn": "Sign in",
       "cart": "Cart",
       "myLibrary": "My Library",
+      "library": "Library",
       "navLinks": {
         "home": "Home",
         "introduction": "Introduction",

@@ -15,6 +15,7 @@
       "signIn": "登录",
       "cart": "购物车",
       "myLibrary": "我的游戏库",
+      "library": "游戏库",
       "searchPlaceholder": "搜索产品",
       "navLinks": {
         "home": "首页",
@@ -43,6 +44,7 @@
       "signIn": "登录",
       "cart": "购物车",
       "myLibrary": "我的游戏库",
+      "library": "游戏库",
       "navLinks": {
         "home": "首页",
         "introduction": "介绍",

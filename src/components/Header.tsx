@@ -76,7 +76,7 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
     >
       <div className="flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl h-16">
         {/* Left: hamburger + logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => toggleMenu?.()}
             className="lg:hidden flex justify-center items-center bg-[#00D4FF0F] hover:bg-[#00D4FF1F] border border-[#00D4FF26] hover:border-[#00D4FF59] rounded-lg w-9 h-9 text-[var(--system-color-mist-lavender)] transition-all"
@@ -171,7 +171,7 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
         </nav>
 
         {/* Right: auth, library, cart, language */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {currentUser && isAuthenticated ? (
             <div className="hidden lg:flex items-center gap-2 bg-[#00D4FF12] px-3 py-1.5 border border-[#00D4FF33] rounded-lg font-medium text-sm text-[#E8E8FFD9]">
               <Link
@@ -202,11 +202,25 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
             </Link>
           )}
 
-          {/* Library */}
+          {/* Library (Desktop) */}
           <Link
             to="/library"
-            title="My Library"
-            className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all ${
+            title={t("desktop.header.library", { defaultValue: "Library" })}
+            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-medium text-sm transition-all duration-200 whitespace-nowrap ${
+              isActive("library")
+                ? "bg-[#00D4FF1A] border-[#00D4FF4C] text-[#00d4ff] shadow-[0_0_12px_#00D4FF26]"
+                : "border-transparent text-[#E8E8FFA6] hover:text-[#00d4ff] hover:bg-[#00D4FF12] hover:border-[#00D4FF33]"
+            }`}
+          >
+            <BookOpen size={15} />
+            <span>{t("desktop.header.library", { defaultValue: "Library" })}</span>
+          </Link>
+
+          {/* Library (Mobile) */}
+          <Link
+            to="/library"
+            title={t("desktop.header.library", { defaultValue: "Library" })}
+            className={`lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border transition-all ${
               isActive("library")
                 ? "bg-[#00D4FF1A] border-[#00D4FF4C] text-[#00d4ff]"
                 : "border-transparent text-[#E8E8FF8C] hover:text-[#00d4ff] hover:bg-[#00D4FF12] hover:border-[#00D4FF33]"
