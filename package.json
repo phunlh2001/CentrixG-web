@@ -1,7 +1,7 @@
 {
   "name": "rebuild",
   "private": true,
-  "version": "2.4.0",
+  "version": "2.5.0",
   "type": "module",
   "main": "./out/main/index.cjs",
   "scripts": {
