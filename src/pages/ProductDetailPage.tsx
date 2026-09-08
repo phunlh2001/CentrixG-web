@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthService } from "../api/authApi";
-import { IProduct, isValidProduct, ProductService } from "../api/productApi";
+import { IProduct, IProductDetail, isValidProduct, ProductService } from "../api/productApi";
 import { UserService } from "../api/userApi";
 import MainLayout from "../components/MainLayout";
 import NeonBadge from "../components/neon/NeonBadge";
@@ -32,7 +32,7 @@ import { useAuthStore } from "../shared/store/useAuthStore";
 
 const parsePrice = (value?: string) => Number(value || 0);
 
-const getProductPrice = (item: IProduct, language: string) => {
+const getProductPrice = (item: IProductDetail, language: string) => {
   if (!item.pricing) return 0;
   if (language === "zh") return parsePrice(item.pricing.cny);
   if (language === "en") return parsePrice(item.pricing.usd);
@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
     (typeof window !== "undefined" &&
       (Boolean((window as any).electron) || window.location.protocol === "file:"));
 
-  const [product, setProduct] = useState<IProduct | null>(null);
+  const [product, setProduct] = useState<IProductDetail | null>(null);
   const [similarProducts, setSimilarProducts] = useState<IProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);

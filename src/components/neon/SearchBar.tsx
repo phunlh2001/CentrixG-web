@@ -89,9 +89,11 @@ export default function SearchBar({
   };
 
   const getFinalPrice = (item: IProduct) => {
-    if (i18n.language === "zh") return Number(item.pricing.cny || 0);
-    if (i18n.language === "en") return Number(item.pricing.usd || 0);
-    return Number(item.pricing.vnd || 0);
+    const prices = item.prices || (item as any).pricing;
+    if (!prices) return 0;
+    if (i18n.language === "zh") return Number(prices.cny || 0);
+    if (i18n.language === "en") return Number(prices.usd || 0);
+    return Number(prices.vnd || 0);
   };
 
   return (

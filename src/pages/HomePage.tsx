@@ -67,7 +67,8 @@ export default function HomePage() {
           response.data
         ) {
           const rawItems = response.data.items || [];
-          const isNotFree = (p: IProduct) => Number(p.pricing?.vnd || 0) > 0;
+          const isNotFree = (p: IProduct) =>
+            Number((p.prices?.vnd ?? (p as any).pricing?.vnd) || 0) > 0;
           const filtered = rawItems.filter(isValidProduct).filter(isNotFree).slice(0, 5);
           setHeroProducts(filtered);
         }

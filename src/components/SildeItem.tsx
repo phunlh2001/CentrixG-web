@@ -13,9 +13,11 @@ type SlideItemProps = {
 const parsePrice = (value?: string) => Number(value || 0);
 
 const getProductPrice = (item: IProduct, language: string) => {
-  if (language === "zh") return parsePrice(item.pricing.cny);
-  if (language === "en") return parsePrice(item.pricing.usd);
-  return parsePrice(item.pricing.vnd);
+  const prices = item.prices || (item as any).pricing;
+  if (!prices) return 0;
+  if (language === "zh") return parsePrice(prices.cny);
+  if (language === "en") return parsePrice(prices.usd);
+  return parsePrice(prices.vnd);
 };
 
 export default function SlideItem({ item }: SlideItemProps) {
@@ -121,7 +123,7 @@ export default function SlideItem({ item }: SlideItemProps) {
               {meta}
             </p>
           )}
-          <p className="line-clamp-3 text-left">{item.description}</p>
+          {item.description && <p className="line-clamp-3 text-left">{item.description}</p>}
           <ul className="space-y-1 pl-4 list-disc">
             <li className="text-left">
               {t("desktop.homePage.slide.benefitSteam")}

@@ -30,10 +30,11 @@ type GameCardProps = {
 const parsePrice = (value?: string) => Number(value || 0);
 
 const getProductPrice = (item: IProduct, language: string) => {
-  if (!item.pricing) return 0;
-  if (language === "zh") return parsePrice(item.pricing.cny);
-  if (language === "en") return parsePrice(item.pricing.usd);
-  return parsePrice(item.pricing.vnd);
+  const prices = item.prices || (item as any).pricing;
+  if (!prices) return 0;
+  if (language === "zh") return parsePrice(prices.cny);
+  if (language === "en") return parsePrice(prices.usd);
+  return parsePrice(prices.vnd);
 };
 
 const getProductCategory = (item: IProduct) =>
@@ -59,7 +60,7 @@ export default function GameCard({
   const categoryId = getProductCategory(item);
   const categories = item.categories || [];
   const alreadyInCart = isInCart(item.id);
-  const isFreeGame = Number(item.pricing?.vnd || 0) === 0;
+  const isFreeGame = Number((item.prices?.vnd ?? (item as any).pricing?.vnd) || 0) === 0;
 
   const handleAddToCart = (event: React.MouseEvent) => {
     event.stopPropagation();

@@ -6,23 +6,11 @@ const createProduct = (
   },
 ): IProduct => ({
   ...product,
-  appId: 0,
-  description: "",
-  pricing: {
+  prices: {
     vnd: String(product.price),
     usd: String(product.price),
     cny: String(product.price),
   },
-  releaseDate: "",
-  developer: "",
-  publisher: "",
-  platforms: [],
-  dlcs: [],
-  disabled: false,
-  isDelete: false,
-  invisible: false,
-  createdAt: "",
-  updatedAt: "",
 });
 
 export const HOT_GAMES: IProduct[] = [
