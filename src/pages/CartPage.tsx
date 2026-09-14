@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart, Utils } from "@/shared";
-import { ArrowRight, ShoppingCart, Trash2, Zap } from "lucide-react";
+import { ArrowRight, LoaderCircle, ShoppingCart, Trash2, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
+import { OrderService } from "@/api/orderApi";
 import MainLayout from "../components/MainLayout";
 import NeonBadge from "../components/neon/NeonBadge";
 import NeonButton from "../components/neon/NeonButton";
 import NeonCard from "../components/neon/NeonCard";
 import SectionHeader from "../components/neon/SectionHeader";
+import OfferCodeModal from "../components/payment/OfferCodeModal";
 
 function EmptyCart() {
   const { t } = useTranslation();
@@ -49,6 +51,8 @@ export default function CartPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { items, removeItem, clearCart, itemCount } = useCart();
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [isCheckingFirstPurchase, setIsCheckingFirstPurchase] = useState(false);
 
   // Reset pagination state to page 1 when visiting CartPage
   useEffect(() => {
@@ -62,9 +66,31 @@ export default function CartPage() {
     return sum + price * item.quantity;
   }, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (items.length === 0) return;
-    navigate("/payment");
+    setIsCheckingFirstPurchase(true);
+    try {
+      const res = await OrderService.checkFirstPurchase();
+      if (res && res.success && res.data?.isFirstPurchase) {
+        setIsOfferModalOpen(true);
+        return;
+      }
+    } catch {
+      // ignore
+    } finally {
+      setIsCheckingFirstPurchase(false);
+    }
+    navigate("/payment", { state: { offerCodeChecked: true } });
+  };
+
+  const handleApplyOfferCode = (offerCode: string) => {
+    setIsOfferModalOpen(false);
+    navigate("/payment", { state: { offerCode, offerCodeChecked: true } });
+  };
+
+  const handleSkipOfferCode = () => {
+    setIsOfferModalOpen(false);
+    navigate("/payment", { state: { offerCodeChecked: true } });
   };
 
   return (
@@ -260,10 +286,19 @@ export default function CartPage() {
                   variant="primary"
                   fullWidth
                   size="lg"
-                  startIcon={<ShoppingCart size={16} />}
+                  disabled={isCheckingFirstPurchase}
+                  startIcon={
+                    isCheckingFirstPurchase ? (
+                      <LoaderCircle size={16} className="animate-spin" />
+                    ) : (
+                      <ShoppingCart size={16} />
+                    )
+                  }
                   onClick={handleCheckout}
                 >
-                  {t("desktop.cartPage.checkout")}
+                  {isCheckingFirstPurchase
+                    ? t("desktop.paymentPage.sepay.waitingForSignal", { defaultValue: "Checking..." })
+                    : t("desktop.cartPage.checkout")}
                 </NeonButton>
 
                 <p
@@ -287,6 +322,13 @@ export default function CartPage() {
           </div>
         )}
       </div>
+
+      <OfferCodeModal
+        isOpen={isOfferModalOpen}
+        onApply={handleApplyOfferCode}
+        onSkip={handleSkipOfferCode}
+        onClose={() => setIsOfferModalOpen(false)}
+      />
     </MainLayout>
   );
 }

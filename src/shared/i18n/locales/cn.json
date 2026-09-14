@@ -228,6 +228,21 @@
         "cvc": "CVC",
         "payNow": "立即支付"
       },
+      "discount": "折扣优惠 (10%)",
+      "offerCodeLabel": "优惠码",
+      "originalAmount": "原总金额",
+      "finalAmount": "实付金额",
+      "offerCodeModal": {
+        "badge": "新用户专享优惠",
+        "title": "首单享 9 折优惠 (10% OFF)",
+        "subtitle": "作为新用户，输入卖家提供的 12 位专属优惠码，即可享受全单 9 折优惠！",
+        "inputLabel": "优惠码 / 促销代码",
+        "inputPlaceholder": "例如: AAAA1111BBBB",
+        "applyBtn": "使用优惠码",
+        "skipBtn": "跳过并直接支付",
+        "optionalNote": "优惠码为选填项。如果您没有优惠码，可直接跳过并继续付款。",
+        "invalidCode": "请输入有效的优惠码"
+      },
       "sepay": {
         "title": "VietQR 扫码支付",
         "subtitle": "请使用手机银行或电子钱包扫描下方二维码或向指定账户转账。",
@@ -235,6 +250,8 @@
         "accountNumber": "收款账号",
         "accountName": "收款人户名",
         "amount": "精确金额",
+        "discount": "首单专享优惠 (10%)",
+        "offerCode": "优惠码",
         "orderCode": "转账附言 / 订单号",
         "copy": "复制",
         "copied": "已复制!",

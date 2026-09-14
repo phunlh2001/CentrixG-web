@@ -228,6 +228,21 @@
         "cvc": "CVC",
         "payNow": "Pay now"
       },
+      "discount": "Discount (10%)",
+      "offerCodeLabel": "Offer Code",
+      "originalAmount": "Original Total",
+      "finalAmount": "Total to Pay",
+      "offerCodeModal": {
+        "badge": "Special Welcome Offer",
+        "title": "First Purchase 10% Discount",
+        "subtitle": "As a new customer, enter the seller's 12-character Offer Code to get 10% off your entire order!",
+        "inputLabel": "Offer Code / Promo Code",
+        "inputPlaceholder": "e.g. AAAA1111BBBB",
+        "applyBtn": "Apply Offer Code",
+        "skipBtn": "Skip & Pay Directly",
+        "optionalNote": "This offer is optional. If you don't have a code, you can skip and proceed.",
+        "invalidCode": "Please enter a valid offer code"
+      },
       "sepay": {
         "title": "VietQR Payment",
         "subtitle": "Scan the QR code below or transfer to the account details provided.",
@@ -235,6 +250,8 @@
         "accountNumber": "Account Number",
         "accountName": "Account Name",
         "amount": "Exact Amount",
+        "discount": "First Purchase Discount (10%)",
+        "offerCode": "Offer Code",
         "orderCode": "Transfer Content / Order Code",
         "copy": "Copy",
         "copied": "Copied!",

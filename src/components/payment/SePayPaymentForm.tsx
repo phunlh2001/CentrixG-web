@@ -18,12 +18,14 @@ import NeonButton from "../neon/NeonButton";
 type SePayPaymentFormProps = {
   amount: number;
   productIds: string[];
+  offerCode?: string;
   onSubmit?: () => void;
 };
 
 export default function SePayPaymentForm({
   amount,
   productIds,
+  offerCode,
   onSubmit,
 }: SePayPaymentFormProps) {
   const { t } = useTranslation();
@@ -41,7 +43,7 @@ export default function SePayPaymentForm({
     try {
       // 1. Try checking latest order first
       let order: IOrderDetails | null = null;
-      const latestRes = await OrderService.getLatestOrder();
+      const latestRes = await OrderService.getLatestOrder(amount, productIds.length);
 
       if (latestRes && latestRes.success && latestRes.data && latestRes.data.orderCode) {
         const latestStatus = (latestRes.data.status || "PENDING").toUpperCase();
@@ -55,7 +57,7 @@ export default function SePayPaymentForm({
         if (!productIds || productIds.length === 0) {
           throw new Error("No products selected for order creation.");
         }
-        const createRes = await OrderService.createOrder(amount, productIds);
+        const createRes = await OrderService.createOrder(amount, productIds, offerCode);
         if (createRes && createRes.success && createRes.data) {
           order = createRes.data;
         } else if (createRes?.data) {
@@ -84,7 +86,7 @@ export default function SePayPaymentForm({
 
   useEffect(() => {
     initOrder();
-  }, [amount, JSON.stringify(productIds)]);
+  }, [amount, JSON.stringify(productIds), offerCode]);
 
   // Timer countdown
   useEffect(() => {
@@ -297,6 +299,28 @@ export default function SePayPaymentForm({
               {orderData.accountName}
             </span>
           </div>
+
+          {/* Offer Code & Discount row if applied */}
+          {Boolean(orderData.offerCode || (orderData.discountAmount && orderData.discountAmount > 0)) && (
+            <div
+              className="flex items-center justify-between p-2.5 rounded-lg"
+              style={{ background: "#00FF880D", border: "1px solid #00FF8833" }}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-[#00ff88]">
+                  {t("desktop.paymentPage.sepay.discount", { defaultValue: "First Purchase Discount (10%)" })}:
+                </span>
+                {orderData.offerCode && (
+                  <span className="font-mono px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00FF881F] text-[#00ff88] border border-[#00FF8840]">
+                    {orderData.offerCode}
+                  </span>
+                )}
+              </div>
+              <span className="font-bold text-sm text-[#00ff88]">
+                -{Utils.convert.currency(orderData.discountAmount || 0, "vi")}
+              </span>
+            </div>
+          )}
 
           {/* Amount */}
           <div

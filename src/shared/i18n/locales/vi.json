@@ -228,6 +228,21 @@
         "cvc": "CVC",
         "payNow": "Thanh toán ngay"
       },
+      "discount": "Giảm giá (10%)",
+      "offerCodeLabel": "Mã ưu đãi",
+      "originalAmount": "Tổng tiền gốc",
+      "finalAmount": "Tổng thanh toán",
+      "offerCodeModal": {
+        "badge": "Ưu đãi thành viên mới",
+        "title": "Giảm 10% Cho Đơn Hàng Đầu Tiên",
+        "subtitle": "Dành riêng cho khách hàng mới! Nhập mã ưu đãi 12 ký tự từ người bán để được giảm ngay 10% trên tổng đơn hàng.",
+        "inputLabel": "Mã ưu đãi / Promo Code",
+        "inputPlaceholder": "Ví dụ: AAAA1111BBBB",
+        "applyBtn": "Áp dụng mã ưu đãi",
+        "skipBtn": "Bỏ qua & Thanh toán trực tiếp",
+        "optionalNote": "Mã ưu đãi là không bắt buộc. Bạn có thể bỏ qua và tiếp tục thanh toán.",
+        "invalidCode": "Vui lòng nhập mã ưu đãi hợp lệ"
+      },
       "sepay": {
         "title": "Thanh toán VietQR",
         "subtitle": "Quét mã QR bên dưới hoặc chuyển khoản theo thông tin tài khoản cung cấp.",
@@ -235,6 +250,8 @@
         "accountNumber": "Số tài khoản",
         "accountName": "Chủ tài khoản",
         "amount": "Số tiền chính xác",
+        "discount": "Ưu đãi khách hàng mới (10%)",
+        "offerCode": "Mã ưu đãi",
         "orderCode": "Nội dung chuyển khoản / Mã đơn",
         "copy": "Sao chép",
         "copied": "Đã sao chép!",

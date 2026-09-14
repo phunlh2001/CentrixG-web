@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -17,21 +17,46 @@ import NeonBadge from '../components/neon/NeonBadge';
 import NeonButton from '../components/neon/NeonButton';
 import NeonCard from '../components/neon/NeonCard';
 import SePayPaymentForm from '../components/payment/SePayPaymentForm';
+import OfferCodeModal from '../components/payment/OfferCodeModal';
 import SectionHeader from '../components/neon/SectionHeader';
+import { OrderService } from '@/api/orderApi';
 import { ProductService } from '@/api/productApi';
 import { toast } from 'react-toastify';
 
 export default function PaymentPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const location = useLocation();
   const { items, itemCount, clearCart, removeItem } = useCart();
-  const isSuccess = pathname === '/payment/success';
+  const isSuccess = location.pathname === '/payment/success';
+
+  const [offerCode, setOfferCode] = useState<string>(
+    (location.state as any)?.offerCode || '',
+  );
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [hasCheckedDirectFirstPurchase, setHasCheckedDirectFirstPurchase] = useState(false);
 
   // Reset pagination state to page 1 when visiting PaymentPage
   useEffect(() => {
     localStorage.setItem("products_current_page", "1");
   }, []);
+
+  // If user entered /payment directly without going through CartPage first-purchase modal
+  useEffect(() => {
+    const checkDirectFirstPurchase = async () => {
+      if (offerCode || (location.state as any)?.offerCodeChecked || hasCheckedDirectFirstPurchase) return;
+      setHasCheckedDirectFirstPurchase(true);
+      try {
+        const res = await OrderService.checkFirstPurchase();
+        if (res && res.success && res.data?.isFirstPurchase) {
+          setIsOfferModalOpen(true);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    checkDirectFirstPurchase();
+  }, [offerCode, location.state]);
 
   const subtotal = items.reduce((sum, item) => {
     const price = item.discount
@@ -43,6 +68,20 @@ export default function PaymentPage() {
   const handleFinish = () => {
     clearCart();
     navigate('/library');
+  };
+
+  const handleApplyOfferCode = (newCode: string) => {
+    setOfferCode(newCode);
+    setIsOfferModalOpen(false);
+    toast.success(
+      t('desktop.paymentPage.offerCodeModal.applyBtn', {
+        defaultValue: 'Offer code applied!',
+      }),
+    );
+  };
+
+  const handleSkipOfferCode = () => {
+    setIsOfferModalOpen(false);
   };
 
   const handleSubmit = async () => {
@@ -62,11 +101,11 @@ export default function PaymentPage() {
       const message = error instanceof Error ? error.message : "Purchase failed";
       toast.error(message);
     }
-  }
+  };
 
   const handleRemove = (item: CartItem) => {
     removeItem(item.id);
-  }
+  };
 
   return (
     <MainLayout>
@@ -119,6 +158,7 @@ export default function PaymentPage() {
                 <SePayPaymentForm
                   amount={subtotal}
                   productIds={Array.from(new Set(items.map((item) => item.id)))}
+                  offerCode={offerCode}
                   onSubmit={handleSubmit}
                 />
               </NeonCard>
@@ -193,13 +233,35 @@ export default function PaymentPage() {
                   })}
                 </div>
 
-                <div className="mt-2 rounded-xl border border-neon-cyan/15 bg-neon-cyan/5 p-5">
+                <div className="mt-2 rounded-xl border border-neon-cyan/15 bg-neon-cyan/5 p-4 flex flex-col gap-2">
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-lg font-semibold text-text-primary">
+                    <span className="text-sm font-medium text-text-primary/70">
+                      {t('desktop.paymentPage.originalAmount', { defaultValue: 'Original Total' })}
+                    </span>
+                    <span className="text-base font-bold text-text-primary">
+                      {Utils.convert.currency(subtotal, "vi")}
+                    </span>
+                  </div>
+
+                  {offerCode && (
+                    <div className="flex items-center justify-between gap-4 text-xs">
+                      <div className="flex items-center gap-1.5 text-[#00ff88]">
+                        <TicketPercent size={14} />
+                        <span className="font-semibold">{t('desktop.paymentPage.discount', { defaultValue: 'Discount (10%)' })}:</span>
+                        <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-[#00FF881F] border border-[#00FF8840]">{offerCode}</span>
+                      </div>
+                      <span className="font-bold text-[#00ff88]">
+                        -{Utils.convert.currency(subtotal * 0.1, "vi")}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="border-t border-neon-cyan/15 pt-2 mt-1 flex items-baseline justify-between gap-4">
+                    <span className="text-base font-semibold text-text-primary">
                       {t('desktop.cartPage.total')}
                     </span>
-                    <span className="text-3xl font-black text-neon-cyan">
-                      {Utils.convert.currency(subtotal, "vi")}
+                    <span className="text-2xl sm:text-3xl font-black text-neon-cyan">
+                      {Utils.convert.currency(offerCode ? subtotal * 0.9 : subtotal, "vi")}
                     </span>
                   </div>
                 </div>
@@ -208,10 +270,13 @@ export default function PaymentPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="justify-start border-transparent bg-transparent px-1 text-left text-text-primary/60 hover:border-transparent hover:bg-transparent hover:text-text-primary"
+                  onClick={() => setIsOfferModalOpen(true)}
+                  className="justify-start border-transparent bg-transparent px-1 text-left text-text-primary/60 hover:border-transparent hover:bg-transparent hover:text-neon-cyan transition-colors"
                   startIcon={<TicketPercent size={17} />}
                 >
-                  {t('desktop.paymentPage.promoQuestion')}
+                  {offerCode
+                    ? `${t('desktop.paymentPage.offerCodeLabel', { defaultValue: 'Offer Code' })}: ${offerCode}`
+                    : t('desktop.paymentPage.promoQuestion')}
                 </NeonButton>
               </div>
 
@@ -228,6 +293,14 @@ export default function PaymentPage() {
           </div>
         )}
       </div>
+
+      <OfferCodeModal
+        isOpen={isOfferModalOpen}
+        initialCode={offerCode}
+        onApply={handleApplyOfferCode}
+        onSkip={handleSkipOfferCode}
+        onClose={() => setIsOfferModalOpen(false)}
+      />
     </MainLayout>
   );
 }
