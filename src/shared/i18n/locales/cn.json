@@ -228,7 +228,7 @@
         "cvc": "CVC",
         "payNow": "立即支付"
       },
-      "discount": "折扣优惠 (10%)",
+      "discount": "首单专享优惠 (10%)",
       "offerCodeLabel": "优惠码",
       "originalAmount": "原总金额",
       "finalAmount": "实付金额",

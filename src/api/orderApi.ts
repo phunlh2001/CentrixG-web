@@ -27,6 +27,7 @@ export interface ICreateOrderPayload {
 
 export interface IFirstPurchaseResponse {
   isFirstPurchase: boolean;
+  usedOfferCode: string;
 }
 
 export const OrderService = {

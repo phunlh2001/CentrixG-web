@@ -19,6 +19,7 @@ type SePayPaymentFormProps = {
   amount: number;
   productIds: string[];
   offerCode?: string;
+  isFirstPurchase?: boolean;
   onSubmit?: () => void;
 };
 
@@ -26,6 +27,7 @@ export default function SePayPaymentForm({
   amount,
   productIds,
   offerCode,
+  isFirstPurchase = false,
   onSubmit,
 }: SePayPaymentFormProps) {
   const { t } = useTranslation();
@@ -57,7 +59,8 @@ export default function SePayPaymentForm({
         if (!productIds || productIds.length === 0) {
           throw new Error("No products selected for order creation.");
         }
-        const createRes = await OrderService.createOrder(amount, productIds, offerCode);
+        const activeOfferCode = isFirstPurchase && offerCode?.trim() ? offerCode.trim() : undefined;
+        const createRes = await OrderService.createOrder(amount, productIds, activeOfferCode);
         if (createRes && createRes.success && createRes.data) {
           order = createRes.data;
         } else if (createRes?.data) {
@@ -86,7 +89,7 @@ export default function SePayPaymentForm({
 
   useEffect(() => {
     initOrder();
-  }, [amount, JSON.stringify(productIds), offerCode]);
+  }, [amount, JSON.stringify(productIds), offerCode, isFirstPurchase]);
 
   // Timer countdown
   useEffect(() => {
@@ -300,8 +303,13 @@ export default function SePayPaymentForm({
             </span>
           </div>
 
-          {/* Offer Code & Discount row if applied */}
-          {Boolean(orderData.offerCode || (orderData.discountAmount && orderData.discountAmount > 0)) && (
+          {/* Offer Code & Discount row if applied and first-time purchase */}
+          {Boolean(
+            isFirstPurchase &&
+            orderData.offerCode?.trim() &&
+            orderData.discountAmount &&
+            Number(orderData.discountAmount) > 0
+          ) && (
             <div
               className="flex items-center justify-between p-2.5 rounded-lg"
               style={{ background: "#00FF880D", border: "1px solid #00FF8833" }}
@@ -316,9 +324,6 @@ export default function SePayPaymentForm({
                   </span>
                 )}
               </div>
-              <span className="font-bold text-sm text-[#00ff88]">
-                -{Utils.convert.currency(orderData.discountAmount || 0, "vi")}
-              </span>
             </div>
           )}
 

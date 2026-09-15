@@ -30,8 +30,19 @@ export default function PaymentPage() {
   const { items, itemCount, clearCart, removeItem } = useCart();
   const isSuccess = location.pathname === '/payment/success';
 
+  const locationState = location.state as {
+    offerCode?: string;
+    offerCodeChecked?: boolean;
+    isFirstPurchase?: boolean;
+  } | null;
+
   const [offerCode, setOfferCode] = useState<string>(
-    (location.state as any)?.offerCode || '',
+    locationState?.offerCode || '',
+  );
+  const [isFirstPurchase, setIsFirstPurchase] = useState<boolean | null>(
+    typeof locationState?.isFirstPurchase === 'boolean'
+      ? locationState.isFirstPurchase
+      : null,
   );
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [hasCheckedDirectFirstPurchase, setHasCheckedDirectFirstPurchase] = useState(false);
@@ -44,19 +55,31 @@ export default function PaymentPage() {
   // If user entered /payment directly without going through CartPage first-purchase modal
   useEffect(() => {
     const checkDirectFirstPurchase = async () => {
-      if (offerCode || (location.state as any)?.offerCodeChecked || hasCheckedDirectFirstPurchase) return;
+      if (hasCheckedDirectFirstPurchase) return;
+      if (locationState?.offerCodeChecked) {
+        if (typeof locationState.isFirstPurchase === 'boolean') {
+          setIsFirstPurchase(locationState.isFirstPurchase);
+        }
+        return;
+      }
       setHasCheckedDirectFirstPurchase(true);
       try {
         const res = await OrderService.checkFirstPurchase();
-        if (res && res.success && res.data?.isFirstPurchase) {
-          setIsOfferModalOpen(true);
+        if (res && res.success) {
+          const isFirst = Boolean(res.data?.isFirstPurchase);
+          setIsFirstPurchase(isFirst);
+          if (isFirst && !offerCode) {
+            setIsOfferModalOpen(true);
+          }
+        } else {
+          setIsFirstPurchase(false);
         }
       } catch {
-        // ignore
+        setIsFirstPurchase(false);
       }
     };
     checkDirectFirstPurchase();
-  }, [offerCode, location.state]);
+  }, [offerCode, locationState, hasCheckedDirectFirstPurchase]);
 
   const subtotal = items.reduce((sum, item) => {
     const price = item.discount
@@ -158,7 +181,8 @@ export default function PaymentPage() {
                 <SePayPaymentForm
                   amount={subtotal}
                   productIds={Array.from(new Set(items.map((item) => item.id)))}
-                  offerCode={offerCode}
+                  offerCode={isFirstPurchase ? offerCode : undefined}
+                  isFirstPurchase={Boolean(isFirstPurchase)}
                   onSubmit={handleSubmit}
                 />
               </NeonCard>
@@ -243,11 +267,11 @@ export default function PaymentPage() {
                     </span>
                   </div>
 
-                  {offerCode && (
+                  {Boolean(isFirstPurchase && offerCode?.trim()) && (
                     <div className="flex items-center justify-between gap-4 text-xs">
                       <div className="flex items-center gap-1.5 text-[#00ff88]">
                         <TicketPercent size={14} />
-                        <span className="font-semibold">{t('desktop.paymentPage.discount', { defaultValue: 'Discount (10%)' })}:</span>
+                        <span className="font-semibold">{t('desktop.paymentPage.discount', { defaultValue: 'First Purchase Discount (10%)' })}:</span>
                         <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-[#00FF881F] border border-[#00FF8840]">{offerCode}</span>
                       </div>
                       <span className="font-bold text-[#00ff88]">
@@ -261,23 +285,25 @@ export default function PaymentPage() {
                       {t('desktop.cartPage.total')}
                     </span>
                     <span className="text-2xl sm:text-3xl font-black text-neon-cyan">
-                      {Utils.convert.currency(offerCode ? subtotal * 0.9 : subtotal, "vi")}
+                      {Utils.convert.currency(isFirstPurchase && offerCode?.trim() ? subtotal * 0.9 : subtotal, "vi")}
                     </span>
                   </div>
                 </div>
 
-                <NeonButton
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsOfferModalOpen(true)}
-                  className="justify-start border-transparent bg-transparent px-1 text-left text-text-primary/60 hover:border-transparent hover:bg-transparent hover:text-neon-cyan transition-colors"
-                  startIcon={<TicketPercent size={17} />}
-                >
-                  {offerCode
-                    ? `${t('desktop.paymentPage.offerCodeLabel', { defaultValue: 'Offer Code' })}: ${offerCode}`
-                    : t('desktop.paymentPage.promoQuestion')}
-                </NeonButton>
+                {Boolean(isFirstPurchase) && (
+                  <NeonButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsOfferModalOpen(true)}
+                    className="justify-start border-transparent bg-transparent px-1 text-left text-text-primary/60 hover:border-transparent hover:bg-transparent hover:text-neon-cyan transition-colors"
+                    startIcon={<TicketPercent size={17} />}
+                  >
+                    {offerCode
+                      ? `${t('desktop.paymentPage.offerCodeLabel', { defaultValue: 'Offer Code' })}: ${offerCode}`
+                      : t('desktop.paymentPage.promoQuestion')}
+                  </NeonButton>
+                )}
               </div>
 
               <NeonButton

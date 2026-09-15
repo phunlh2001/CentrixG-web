@@ -80,17 +80,17 @@ export default function CartPage() {
     } finally {
       setIsCheckingFirstPurchase(false);
     }
-    navigate("/payment", { state: { offerCodeChecked: true } });
+    navigate("/payment", { state: { offerCodeChecked: true, isFirstPurchase: false } });
   };
 
   const handleApplyOfferCode = (offerCode: string) => {
     setIsOfferModalOpen(false);
-    navigate("/payment", { state: { offerCode, offerCodeChecked: true } });
+    navigate("/payment", { state: { offerCode, offerCodeChecked: true, isFirstPurchase: true } });
   };
 
   const handleSkipOfferCode = () => {
     setIsOfferModalOpen(false);
-    navigate("/payment", { state: { offerCodeChecked: true } });
+    navigate("/payment", { state: { offerCodeChecked: true, isFirstPurchase: true } });
   };
 
   return (
