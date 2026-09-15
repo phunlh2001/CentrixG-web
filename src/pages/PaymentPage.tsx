@@ -290,7 +290,7 @@ export default function PaymentPage() {
                   </div>
                 </div>
 
-                {Boolean(isFirstPurchase) && (
+                {/* {Boolean(isFirstPurchase) && (
                   <NeonButton
                     type="button"
                     variant="ghost"
@@ -303,7 +303,7 @@ export default function PaymentPage() {
                       ? `${t('desktop.paymentPage.offerCodeLabel', { defaultValue: 'Offer Code' })}: ${offerCode}`
                       : t('desktop.paymentPage.promoQuestion')}
                   </NeonButton>
-                )}
+                )} */}
               </div>
 
               <NeonButton
