@@ -23,6 +23,7 @@
         "categories": "分类",
         "events": "博客 / 新闻",
         "download": "下载",
+        "affiliate": "联盟计划",
         "contact": "联系",
         "game-hot": "热门游戏",
         "capcom": "Capcom",
@@ -51,6 +52,7 @@
         "categories": "分类",
         "events": "活动",
         "download": "下载",
+        "affiliate": "联盟计划",
         "contact": "联系",
         "game-hot": "热门游戏",
         "capcom": "Capcom",
@@ -93,6 +95,7 @@
       "linkStore": "商店",
       "linkEvents": "活动",
       "linkContact": "联系我们",
+      "linkAffiliate": "分销联盟",
       "linkPrivacy": "隐私政策",
       "linkTerms": "服务条款",
       "fanpage": "粉丝页",
@@ -260,6 +263,55 @@
         "qrInstruction": "使用手机银行 App 或电子钱包扫码",
         "notice": "注意：请务必填写准确的转账附言，以便系统自动确认订单。",
         "expiresIn": "支付会话将在以下时间内有效："
+      }
+    },
+    "affiliatePage": {
+      "eyebrow": "分销联盟计划",
+      "title": "加入分销联盟伙伴",
+      "subtitle": "向玩家社区分享您的专属优惠码，轻松赚取丰厚的订单佣金分成。",
+      "badge": "赚取佣金",
+      "steps": {
+        "step1Title": "1. 创建专属代码",
+        "step1Desc": "设置专属于您的 6-12 位自定义优惠代码。",
+        "step2Title": "2. 分享至玩家社群",
+        "step2Desc": "玩家在结账时输入您的代码即可立享 9 折优惠。",
+        "step3Title": "3. 获得佣金回报",
+        "step3Desc": "每笔通过您的代码完成的订单均可获得佣金分成。"
+      },
+      "form": {
+        "title": "联盟伙伴申请信息",
+        "subtitle": "填写以下基本信息即可快速激活您的专属分销代码。",
+        "usernameLabel": "用户名",
+        "emailLabel": "电子邮箱",
+        "fullNameLabel": "真实姓名",
+        "fullNamePlaceholder": "请输入您的真实姓名",
+        "phoneLabel": "联系电话",
+        "phonePlaceholder": "请输入您的手机号码",
+        "offerCodeLabel": "自定义专属优惠码 (6-12位)",
+        "offerCodePlaceholder": "例如: GAMER2026",
+        "offerCodeHint": "支持 6 至 12 位英文与数字组合，不含空格与特殊符号。",
+        "submitBtn": "立即提交联盟申请",
+        "submitting": "正在提交申请...",
+        "previewTitle": "结账优惠卡片实时预览",
+        "previewDesc": "买家在收银台应用您的优惠码时所见到的视觉效果",
+        "previewDiscount": "首单专享优惠 (10%)"
+      },
+      "validation": {
+        "fullNameRequired": "请输入真实姓名",
+        "phoneRequired": "请输入有效的联系电话",
+        "offerCodeInvalid": "优惠码长度须为 6 至 12 位字母或数字",
+        "emailInvalid": "请输入有效的邮箱地址",
+        "usernameRequired": "请输入用户名"
+      },
+      "success": {
+        "title": "联盟伙伴申请成功！",
+        "desc": "恭喜您成为 Centrix G 官方合作伙伴！您的专属优惠码已激活，现在即可分享给社区好友！",
+        "yourCode": "您的专属优惠码：",
+        "copyCode": "复制优惠码",
+        "copied": "已复制！",
+        "backHome": "返回首页",
+        "goToLibrary": "前往游戏库",
+        "contactSupport": "需要帮助？加入官方 Discord 交流群"
       }
     },
     "forgotPasswordPage": {

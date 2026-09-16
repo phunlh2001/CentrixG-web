@@ -23,6 +23,7 @@
         "categories": "Thể loại",
         "events": "Blog / Tin tức",
         "download": "Tải xuống",
+        "affiliate": "Đối tác",
         "contact": "Liên hệ",
         "game-hot": "Game Hot",
         "capcom": "Capcom",
@@ -51,6 +52,7 @@
         "categories": "Thể loại",
         "events": "Sự kiện",
         "download": "Tải xuống",
+        "affiliate": "Đối tác",
         "contact": "Liên hệ",
         "game-hot": "Game Hot",
         "capcom": "Capcom",
@@ -93,6 +95,7 @@
       "linkStore": "Cửa hàng",
       "linkEvents": "Sự kiện",
       "linkContact": "Liên hệ",
+      "linkAffiliate": "Đăng ký Affiliate",
       "linkPrivacy": "Bảo mật & quyền riêng tư",
       "linkTerms": "Chính sách & điều khoản",
       "fanpage": "fanpage",
@@ -260,6 +263,55 @@
         "qrInstruction": "Quét bằng ứng dụng Ngân hàng hoặc Ví điện tử của bạn",
         "notice": "Lưu ý: Vui lòng nhập CHÍNH XÁC nội dung chuyển khoản để đơn hàng được duyệt tự động.",
         "expiresIn": "Phiên thanh toán hết hạn sau:"
+      }
+    },
+    "affiliatePage": {
+      "eyebrow": "Chương trình Đối tác",
+      "title": "Đăng Ký Đối Tác Bán Hàng",
+      "subtitle": "Kiếm hoa hồng hấp dẫn bằng cách chia sẻ mã ưu đãi riêng của bạn cho cộng đồng game thủ.",
+      "badge": "Kiếm hoa hồng",
+      "steps": {
+        "step1Title": "1. Tạo mã riêng",
+        "step1Desc": "Đặt mã ưu đãi 6-12 ký tự mang phong cách của bạn.",
+        "step2Title": "2. Chia sẻ cộng đồng",
+        "step2Desc": "Game thủ nhập mã của bạn được giảm ngay 10% khi mua game.",
+        "step3Title": "3. Nhận hoa hồng",
+        "step3Desc": "Nhận chiết khấu hoa hồng hấp dẫn trên mỗi đơn hàng thành công."
+      },
+      "form": {
+        "title": "Thông Tin Đăng Ký Đại Lý",
+        "subtitle": "Điền đầy đủ thông tin để kích hoạt tài khoản đối tác và nhận mã giới thiệu.",
+        "usernameLabel": "Tên đăng nhập",
+        "emailLabel": "Địa chỉ Email",
+        "fullNameLabel": "Họ và tên",
+        "fullNamePlaceholder": "Nhập họ và tên đầy đủ",
+        "phoneLabel": "Số điện thoại liên hệ",
+        "phonePlaceholder": "Ví dụ: 0912345678",
+        "offerCodeLabel": "Mã ưu đãi của bạn (6-12 ký tự)",
+        "offerCodePlaceholder": "Ví dụ: GAMER2026",
+        "offerCodeHint": "Mã chứa từ 6 đến 12 ký tự chữ hoặc số, không chứa khoảng trắng hoặc ký tự đặc biệt.",
+        "submitBtn": "Đăng ký làm đối tác ngay",
+        "submitting": "Đang gửi thông tin đăng ký...",
+        "previewTitle": "Xem trước hiển thị thanh toán",
+        "previewDesc": "Giao diện khách hàng thấy khi áp dụng mã ưu đãi của bạn",
+        "previewDiscount": "Ưu đãi khách hàng mới (10%)"
+      },
+      "validation": {
+        "fullNameRequired": "Vui lòng nhập họ và tên của bạn",
+        "phoneRequired": "Vui lòng nhập số điện thoại hợp lệ (9-11 số)",
+        "offerCodeInvalid": "Mã ưu đãi phải có từ 6 đến 12 ký tự (chữ hoặc số)",
+        "emailInvalid": "Địa chỉ email không hợp lệ",
+        "usernameRequired": "Vui lòng nhập tên người dùng"
+      },
+      "success": {
+        "title": "Đăng Ký Đối Tác Thành Công!",
+        "desc": "Chúc mừng bạn đã trở thành đối tác chính thức của Centrix G. Mã ưu đãi của bạn đã sẵn sàng để chia sẻ cho cộng đồng!",
+        "yourCode": "Mã ưu đãi của bạn:",
+        "copyCode": "Sao chép mã",
+        "copied": "Đã sao chép!",
+        "backHome": "Về trang chủ",
+        "goToLibrary": "Đến thư viện game",
+        "contactSupport": "Cần hỗ trợ? Tham gia Discord đối tác"
       }
     },
     "forgotPasswordPage": {

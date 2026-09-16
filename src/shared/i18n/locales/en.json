@@ -23,6 +23,7 @@
         "categories": "Categories",
         "events": "Blog / News",
         "download": "Download",
+        "affiliate": "Affiliate",
         "contact": "Contact",
         "game-hot": "Hot Games",
         "capcom": "Capcom",
@@ -51,6 +52,7 @@
         "categories": "Categories",
         "events": "Events",
         "download": "Download",
+        "affiliate": "Affiliate",
         "contact": "Contact",
         "game-hot": "Hot Games",
         "capcom": "Capcom",
@@ -93,6 +95,7 @@
       "linkStore": "Store",
       "linkEvents": "Events",
       "linkContact": "Contact Us",
+      "linkAffiliate": "Affiliate Program",
       "linkPrivacy": "Privacy Policy",
       "linkTerms": "Terms of Service",
       "fanpage": "fanpage",
@@ -260,6 +263,55 @@
         "qrInstruction": "Scan with your Mobile Banking or e-Wallet app",
         "notice": "Important: Please enter the EXACT transfer content so your order is automatically approved.",
         "expiresIn": "Payment session expires in:"
+      }
+    },
+    "affiliatePage": {
+      "eyebrow": "Partner Program",
+      "title": "Become an Affiliate Partner",
+      "subtitle": "Earn attractive commissions by sharing your custom promo code with the gaming community.",
+      "badge": "Earn Commissions",
+      "steps": {
+        "step1Title": "1. Create Custom Code",
+        "step1Desc": "Create your unique 6-12 character promo code.",
+        "step2Title": "2. Share with Community",
+        "step2Desc": "Gamers get a 10% discount when using your code at checkout.",
+        "step3Title": "3. Earn Commissions",
+        "step3Desc": "Receive commission payouts on every successful game purchase."
+      },
+      "form": {
+        "title": "Partner Registration Form",
+        "subtitle": "Fill in the details below to activate your partner code and start earning.",
+        "usernameLabel": "Username",
+        "emailLabel": "Email Address",
+        "fullNameLabel": "Full Name",
+        "fullNamePlaceholder": "Enter your full name",
+        "phoneLabel": "Phone Number",
+        "phonePlaceholder": "e.g. +1 555 0199 or 0912345678",
+        "offerCodeLabel": "Your Custom Offer Code (6-12 chars)",
+        "offerCodePlaceholder": "e.g. GAMER2026",
+        "offerCodeHint": "Letters and numbers only, between 6 and 12 characters, no spaces.",
+        "submitBtn": "Register as Affiliate Partner",
+        "submitting": "Submitting registration...",
+        "previewTitle": "Checkout Badge Preview",
+        "previewDesc": "How your custom promo code will appear to customers at checkout",
+        "previewDiscount": "First Purchase Discount (10%)"
+      },
+      "validation": {
+        "fullNameRequired": "Please enter your full name",
+        "phoneRequired": "Please enter a valid phone number",
+        "offerCodeInvalid": "Offer code must be 6 to 12 alphanumeric characters",
+        "emailInvalid": "Please enter a valid email address",
+        "usernameRequired": "Username is required"
+      },
+      "success": {
+        "title": "Partner Registration Successful!",
+        "desc": "Congratulations on becoming an official Centrix G partner. Your offer code is activated and ready to share!",
+        "yourCode": "Your Offer Code:",
+        "copyCode": "Copy Code",
+        "copied": "Copied!",
+        "backHome": "Back to Home",
+        "goToLibrary": "Go to Library",
+        "contactSupport": "Need help? Join Partner Discord"
       }
     },
     "forgotPasswordPage": {

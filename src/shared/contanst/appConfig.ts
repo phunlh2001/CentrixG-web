@@ -103,6 +103,14 @@ export const MEGA_MENU = {
       zh: "下载",
     },
   },
+  affiliate: {
+    slug: "affiliate",
+    label: {
+      vi: "Đối tác",
+      en: "Affiliate",
+      zh: "联盟计划",
+    },
+  },
 };
 
 export const LOCALES = [

@@ -28,7 +28,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const isDesktop = import.meta.env.VITE_APP_TARGET === "desktop";
 
   const MENU = Object.values(MEGA_MENU)
-    .filter((item) => !isDesktop || item.slug !== "download")
+    .filter((item) => !isDesktop || (!["download", "affiliate"].includes(item.slug)))
     .map((item) => ({
       slug: item.slug,
       label: item.label[currentLang] || item.label["vi"] || item.label["en"],

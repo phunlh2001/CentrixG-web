@@ -90,6 +90,9 @@ export default function Footer() {
                 {[
                   { key: "linkIntro", href: "/introduction" },
                   { key: "linkStore", href: "/categories" },
+                  ...(import.meta.env.VITE_APP_TARGET !== "desktop"
+                    ? [{ key: "linkAffiliate", href: "/affiliate" }]
+                    : []),
                   { key: "linkEvents", href: "/blog" },
                   { key: "linkContact", href: "/contact" },
                 ].map(({ key, href }) => (
