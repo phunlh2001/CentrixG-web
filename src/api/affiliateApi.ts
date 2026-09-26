@@ -3,12 +3,27 @@ import type { BaseApiResponse } from "../shared/http/types";
 
 const BASE_URL = "affiliates";
 
+export interface ISocialChannel {
+  channel: string;
+  urlOrHandle: string;
+}
+
+export interface IBankInfo {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
 export interface IAffiliateRegisterPayload {
   username: string;
   email: string;
   fullName: string;
   phone: string;
   offerCode: string;
+  channels: ISocialChannel[];
+  promotionPlan: string;
+  pastAchievements: string;
+  bankInfo: IBankInfo;
 }
 
 export interface IAffiliateRegisterResponse {
