@@ -13,7 +13,7 @@ export const AUTH_STORAGE_KEYS = {
   user: "authUser",
 } as const;
 
-export type AuthUserRole = "ADMIN" | "CUSTOMER" | "STREAMER" | string;
+export type AuthUserRole = "ADMIN" | "CUSTOMER" | "SELLER" | string;
 
 export interface IAuthUser {
   id: string;
@@ -21,6 +21,8 @@ export interface IAuthUser {
   email: string;
   role: AuthUserRole;
   isBlock?: boolean;
+  totalEarn?: number;
+  isSeller?: boolean;
 }
 
 export interface IAuthResponse {
@@ -74,6 +76,7 @@ const saveSession = (session: IAuthResponse) => {
     Utils.cookie.create(AUTH_STORAGE_KEYS.expiresAt, String(expiresAt), days);
   }
   if (session.user) {
+    session.user.isSeller = session.user.role === "SELLER";
     Utils.cookie.create(AUTH_STORAGE_KEYS.user, JSON.stringify(session.user), days);
   }
   window.dispatchEvent(new Event("auth-session-changed"));

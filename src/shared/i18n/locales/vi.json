@@ -17,6 +17,8 @@
       "myLibrary": "Thư viện của tôi",
       "library": "Thư viện",
       "searchPlaceholder": "Tìm kiếm sản phẩm",
+      "totalEarn": "tổng thu nhập: {{amount}} vnd",
+      "totalEarnLabel": "tổng thu nhập:",
       "navLinks": {
         "home": "Trang chủ",
         "introduction": "Giới thiệu",

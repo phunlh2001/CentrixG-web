@@ -17,6 +17,8 @@
       "myLibrary": "My Library",
       "library": "Library",
       "searchPlaceholder": "Search products",
+      "totalEarn": "total earn: {{amount}} vnd",
+      "totalEarnLabel": "total earn:",
       "navLinks": {
         "home": "Home",
         "introduction": "Introduction",

@@ -173,15 +173,44 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
         {/* Right: auth, library, cart, language */}
         <div className="flex items-center gap-1.5 shrink-0">
           {currentUser && isAuthenticated ? (
-            <div className="hidden lg:flex items-center gap-2 bg-[#00D4FF12] px-3 py-1.5 border border-[#00D4FF33] rounded-lg font-medium text-sm text-[#E8E8FFD9]">
-              <Link
-                to="/library"
-                title={currentUser.username}
-                className="flex items-center gap-1.5 hover:text-[#00d4ff] max-w-36 transition-colors"
-              >
-                <User size={15} className="shrink-0 text-neon-cyan" />
-                <span className="truncate">{currentUser.username}</span>
-              </Link>
+            <div className="hidden lg:flex items-center gap-2 bg-[#00D4FF12] px-3 py-1.5 border border-[#00D4FF33] rounded-lg font-medium text-sm text-[#E8E8FFD9] relative">
+              <div className="group/seller relative flex items-center">
+                <Link
+                  to="/library"
+                  title={currentUser.username}
+                  className="flex items-center gap-1.5 hover:text-[#00d4ff] max-w-36 transition-colors"
+                >
+                  <User size={15} className="shrink-0 text-neon-cyan" />
+                  <span className="truncate">{currentUser.username}</span>
+                </Link>
+
+                {/* Seller Total Earn Mini Popup on Hover */}
+                {(currentUser.role?.toUpperCase() === "SELLER" || currentUser.isSeller === true) && (
+                  <div className="invisible group-hover/seller:visible opacity-0 group-hover/seller:opacity-100 top-full left-1/2 -translate-x-1/2 absolute mt-2.5 z-50 pointer-events-none transition-all duration-200 select-none">
+                    {/* Up Arrow */}
+                    <div className="top-0 left-1/2 absolute -translate-x-1/2 -translate-y-full w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-[#00D4FF4D]" />
+
+                    <div
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"
+                      style={{
+                        background: "#08081CF7",
+                        border: "1px solid #00D4FF40",
+                        boxShadow: "0 8px 24px #000000B3, 0 0 16px #00D4FF26",
+                        backdropFilter: "blur(16px)",
+                        WebkitBackdropFilter: "blur(16px)",
+                      }}
+                    >
+                      <span className="text-[#E8E8FFB2] text-[11px] lowercase">
+                        {t("desktop.header.totalEarnLabel", { defaultValue: "total earn:" })}
+                      </span>
+                      <span className="font-mono font-bold text-[#00ff88] text-xs tracking-wide">
+                        {(currentUser.totalEarn ?? 0).toLocaleString("vi-VN")} vnd
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <span className="text-[#00D4FF40]">|</span>
               <button
                 type="button"

@@ -118,15 +118,25 @@ export default function NavigationMenu({ menu, onClose }: NavigationMenuProps) {
             <Link
               to="/library"
               onClick={onClose}
-              className="flex items-center gap-2.5 text-cyan-400 font-semibold truncate"
+              className="flex items-center gap-2.5 text-cyan-400 font-semibold truncate min-w-0"
             >
-              <User size={18} className="shrink-0" />
-              <span className="truncate">{currentUser.username}</span>
+              <User size={18} className="shrink-0 text-neon-cyan" />
+              <div className="flex flex-col min-w-0">
+                <span className="truncate">{currentUser.username}</span>
+                {(currentUser.role?.toUpperCase() === "SELLER" || currentUser.isSeller === true) && (
+                  <span className="text-[11px] font-normal text-[#E8E8FFB2]">
+                    {t("desktop.header.totalEarnLabel", { defaultValue: "total earn:" })}{" "}
+                    <strong className="text-[#00ff88] font-mono font-bold">
+                      {(currentUser.totalEarn ?? 0).toLocaleString("vi-VN")} vnd
+                    </strong>
+                  </span>
+                )}
+              </div>
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-1 text-white/70 hover:text-red-400 text-xs transition-colors"
+              className="flex items-center gap-1 text-white/70 hover:text-red-400 text-xs transition-colors shrink-0 ml-2"
             >
               <LogOut size={16} />
             </button>
