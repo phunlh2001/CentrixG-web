@@ -12,7 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import DownloadPage from "./pages/DownloadPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
-import AffiliatePage from "./pages/AffiliatePage";
+// import AffiliatePage from "./pages/AffiliatePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
       {/* <Route path="/blog" element={<BlogPage />} /> */}
       <Route path="/cart" element={<CartPage />} />
       {!isDesktop && <Route path="/download" element={<DownloadPage />} />}
-      {!isDesktop && (
+      {/* {!isDesktop && (
         <Route
           path="/affiliate"
           element={
@@ -39,7 +39,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-      )}
+      )} */}
       <Route
         path="/payment"
         element={
