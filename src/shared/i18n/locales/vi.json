@@ -380,6 +380,22 @@
         "backHome": "Về trang chủ",
         "goToLibrary": "Đến thư viện game",
         "contactSupport": "Cần hỗ trợ? Tham gia Discord đối tác"
+      },
+      "sellerDashboard": {
+        "badge": "Đối Tác & Người Bán Chính Thức",
+        "title": "Bảng Điều Khiển Đối Tác Seller",
+        "subtitle": "Bạn là Đối tác chính thức của Centrix G. Chia sẻ mã ưu đãi của bạn cho cộng đồng game thủ để nhận hoa hồng tự động trên mỗi đơn hàng hoàn tất.",
+        "activeCode": "Mã Ưu Đãi Đang Hoạt Động",
+        "activeCodeDesc": "Chia sẻ mã này cho người xem và bạn bè để họ nhận giảm giá 10% và bạn nhận hoa hồng tự động trên mỗi đơn hàng.",
+        "totalEarnings": "Tổng Thu Nhập Hoa Hồng",
+        "totalEarningsDesc": "Hoa hồng thanh toán tự động chuyển thẳng về STK ngân hàng đã đăng ký",
+        "perksTitle": "Đặc Quyền Dành Cho Đối Tác",
+        "perk1Title": "Ưu Đãi 10% Cho Khách Hàng",
+        "perk1Desc": "Mã của bạn giảm ngay 10% cho đơn hàng đầu tiên của người mua",
+        "perk2Title": "Chia Sẻ Doanh Thu Hoa Hồng",
+        "perk2Desc": "Nhận hoa hồng trực tiếp trên mỗi giao dịch thành công",
+        "perk3Title": "Ghi Nhận Đơn Tức Thì",
+        "perk3Desc": "Hệ thống tự động theo dõi và ghi nhận hoa hồng theo thời gian thực"
       }
     },
     "forgotPasswordPage": {

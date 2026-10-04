@@ -1,50 +1,58 @@
 import { HttpClient } from "../shared/http/httpClient";
 import type { BaseApiResponse } from "../shared/http/types";
 
-const BASE_URL = "affiliates";
+const BASE_URL = "affiliate";
 
 export interface ISocialChannel {
-  channel: string;
-  urlOrHandle: string;
+  platform: string;
+  url: string;
 }
 
-export interface IBankInfo {
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
-}
-
-export interface IAffiliateRegisterPayload {
-  username: string;
-  email: string;
+export interface IAffiliateApplyPayload {
   fullName: string;
-  phone: string;
-  offerCode: string;
-  channels: ISocialChannel[];
+  phoneNumber: string;
+  socialChannels: ISocialChannel[];
   promotionPlan: string;
-  pastAchievements: string;
-  bankInfo: IBankInfo;
+  achievements: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountName: string;
+  offerCode: string;
 }
 
-export interface IAffiliateRegisterResponse {
-  offerCode: string;
-  username: string;
+export interface IAffiliateApplyResponse {
+  offerCode?: string;
   status?: string;
+  message?: string;
   createdAt?: string;
+  [key: string]: any;
 }
+
+// Backward compatibility alias
+export type IAffiliateRegisterPayload = IAffiliateApplyPayload;
+export type IAffiliateRegisterResponse = IAffiliateApplyResponse;
 
 export const AffiliateService = {
-  register: async (
-    payload: IAffiliateRegisterPayload
-  ): Promise<BaseApiResponse<IAffiliateRegisterResponse> | undefined> => {
+  apply: async (
+    payload: IAffiliateApplyPayload
+  ): Promise<BaseApiResponse<IAffiliateApplyResponse> | undefined> => {
     try {
       const response = await HttpClient.post<
-        IAffiliateRegisterResponse,
-        IAffiliateRegisterPayload
-      >(`${BASE_URL}/register`, payload);
+        IAffiliateApplyResponse,
+        IAffiliateApplyPayload
+      >(`${BASE_URL}/apply`, payload);
       return response;
     } catch (error: any) {
-      throw new Error(error.message || "Failed to register affiliate partner.");
+      throw new Error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to submit affiliate application."
+      );
     }
+  },
+  register: async (
+    payload: IAffiliateApplyPayload
+  ): Promise<BaseApiResponse<IAffiliateApplyResponse> | undefined> => {
+    return AffiliateService.apply(payload);
   },
 };

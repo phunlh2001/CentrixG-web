@@ -23,6 +23,7 @@ export interface IAuthUser {
   isBlock?: boolean;
   totalEarn?: number;
   isSeller?: boolean;
+  offerCode?: string | null;
 }
 
 export interface IAuthResponse {

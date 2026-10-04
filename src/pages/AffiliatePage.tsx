@@ -34,9 +34,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   AffiliateService,
-  IAffiliateRegisterPayload,
+  IAffiliateApplyPayload,
   ISocialChannel,
 } from "../api/affiliateApi";
+import CentrixMascot from "../assets/centrixg-removebg.png";
+import CentrixLogo from "../assets/centrix-logo.png";
 import MainLayout from "../components/MainLayout";
 import NeonBadge from "../components/neon/NeonBadge";
 import NeonButton from "../components/neon/NeonButton";
@@ -45,6 +47,23 @@ import SectionHeader from "../components/neon/SectionHeader";
 import { APP_CONFIG } from "../shared/contanst/appConfig";
 import { useAuthStore } from "../shared/store/useAuthStore";
 import { openExternalLink } from "../shared/utils";
+
+const PLATFORM_NAME_MAP: Record<string, string> = {
+  youtube: "YouTube",
+  tiktok: "TikTok",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  discord: "Discord",
+  telegram: "Telegram",
+  twitch: "Twitch",
+  website: "Website",
+  other: "Other",
+};
+
+interface ILocalChannel {
+  channel: string;
+  urlOrHandle: string;
+}
 
 const CHANNEL_OPTIONS = [
   { value: "youtube", icon: <Video size={15} /> },
@@ -63,6 +82,9 @@ export default function AffiliatePage() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuthStore();
 
+  const isSeller =
+    currentUser?.role?.toUpperCase() === "SELLER" || currentUser?.isSeller === true;
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -76,7 +98,7 @@ export default function AffiliatePage() {
     bankAccountName: "",
   });
 
-  const [channels, setChannels] = useState<ISocialChannel[]>([
+  const [channels, setChannels] = useState<ILocalChannel[]>([
     { channel: "youtube", urlOrHandle: "" },
   ]);
 
@@ -202,33 +224,32 @@ export default function AffiliatePage() {
 
     setIsSubmitting(true);
     try {
-      const payload: IAffiliateRegisterPayload = {
-        username: (formData.username || currentUser?.username || "").trim(),
-        email: (formData.email || currentUser?.email || "").trim(),
+      const socialChannels: ISocialChannel[] = channels
+        .filter((c) => c.urlOrHandle.trim().length > 0)
+        .map((c) => ({
+          platform: PLATFORM_NAME_MAP[c.channel] || c.channel,
+          url: c.urlOrHandle.trim(),
+        }));
+
+      const payload: IAffiliateApplyPayload = {
         fullName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
-        offerCode: formData.offerCode.trim().toUpperCase(),
-        channels: channels.filter((c) => c.urlOrHandle.trim().length > 0),
+        phoneNumber: formData.phone.trim(),
+        socialChannels,
         promotionPlan: formData.promotionPlan.trim(),
-        pastAchievements: formData.pastAchievements.trim(),
-        bankInfo: {
-          bankName: formData.bankName.trim(),
-          accountNumber: formData.bankAccountNumber.trim(),
-          accountName: formData.bankAccountName.trim().toUpperCase(),
-        },
+        achievements: formData.pastAchievements.trim(),
+        bankName: formData.bankName.trim(),
+        bankAccountNumber: formData.bankAccountNumber.trim(),
+        bankAccountName: formData.bankAccountName.trim().toUpperCase(),
+        offerCode: formData.offerCode.trim().toUpperCase(),
       };
 
-      try {
-        await AffiliateService.register(payload);
-      } catch (apiErr: any) {
-        console.warn("Affiliate API notice:", apiErr?.message);
-      }
+      await AffiliateService.apply(payload);
 
       setRegisteredCode(payload.offerCode);
       setIsSuccess(true);
       toast.success(t("desktop.affiliatePage.success.title"));
     } catch (err: any) {
-      toast.error(err?.message || "Failed to register affiliate partner.");
+      toast.error(err?.message || "Failed to submit affiliate application.");
     } finally {
       setIsSubmitting(false);
     }
@@ -238,114 +259,220 @@ export default function AffiliatePage() {
     if (!text) return;
     navigator.clipboard.writeText(text);
     setCopiedCode(true);
-    toast.success(t("desktop.affiliatePage.success.copied"));
+    toast.success(t("desktop.affiliatePage.success.copied", { defaultValue: "Copied!" }));
     setTimeout(() => setCopiedCode(false), 2500);
   };
+
+  const displayOfferCode =
+    registeredCode ||
+    currentUser?.offerCode ||
+    formData.offerCode ||
+    "PARTNER";
 
   return (
     <MainLayout>
       <div className="flex flex-col gap-10 animate-fade-in-up">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <SectionHeader
-            eyebrow={t("desktop.affiliatePage.eyebrow")}
-            title={t("desktop.affiliatePage.title")}
-          />
-          <NeonBadge color="cyan" dot>
-            <Sparkles size={13} className="text-neon-cyan" />
-            {t("desktop.affiliatePage.badge")}
-          </NeonBadge>
-        </div>
+        {!isSeller && !isSuccess && (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <SectionHeader
+              eyebrow={t("desktop.affiliatePage.eyebrow")}
+              title={t("desktop.affiliatePage.title")}
+            />
+            <NeonBadge color="cyan" dot>
+              <Sparkles size={13} className="text-neon-cyan" />
+              {t("desktop.affiliatePage.badge")}
+            </NeonBadge>
+          </div>
+        )}
 
-        {/* Success View */}
-        {isSuccess ? (
-          <NeonCard glow="cyan" padding="lg" className="text-center max-w-2xl mx-auto w-full">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#00FF8859] bg-[#00FF8814]">
-              <CheckCircle2 size={34} style={{ color: "#00ff88" }} />
+        {/* Animated Seller Partner Dashboard / Success View */}
+        {isSeller || isSuccess ? (
+          <div className="flex flex-col items-center justify-center gap-8 max-w-4xl mx-auto w-full animate-fade-in text-center">
+            {/* Floating Hero Visual with ambient radial glow like NotFoundPage */}
+            <div className="relative my-2">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: "radial-gradient(circle, #00D4FF33, #7B2FBE26, transparent 70%)",
+                  filter: "blur(40px)",
+                }}
+              />
+              <img
+                src={CentrixMascot || CentrixLogo}
+                alt="Centrix G Partner"
+                className="relative z-10 w-40 h-40 sm:w-48 sm:h-48 object-contain mx-auto animate-float drop-shadow-[0_0_32px_#00D4FF80]"
+              />
             </div>
 
-            <h2
-              className="text-2xl font-black mb-3"
-              style={{ color: "var(--system-color-mist-lavender)" }}
-            >
-              {t("desktop.affiliatePage.success.title")}
-            </h2>
+            {/* Title & Badge */}
+            <div className="flex flex-col items-center gap-3">
+              <NeonBadge color="cyan" dot>
+                <Sparkles size={13} className="text-neon-cyan" />
+                {isSeller
+                  ? t("desktop.affiliatePage.sellerDashboard.badge")
+                  : t("desktop.affiliatePage.badge")}
+              </NeonBadge>
 
-            <p className="text-sm leading-relaxed mb-6 max-w-lg mx-auto" style={{ color: "#E8E8FF8C" }}>
-              {t("desktop.affiliatePage.success.desc")}
-            </p>
-
-            {/* Confirmed Promo Code Card */}
-            <div
-              className="p-5 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-              style={{
-                background: "#00FF880D",
-                border: "1px solid #00FF8833",
-                boxShadow: "0 0 24px #00FF8814",
-              }}
-            >
-              <div className="text-left">
-                <span className="text-xs uppercase tracking-wider font-semibold text-[#00ff88]">
-                  {t("desktop.affiliatePage.success.yourCode")}
-                </span>
-                <div className="text-3xl font-black tracking-widest font-mono text-[#00ff88] mt-0.5">
-                  {registeredCode}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => copyToClipboard(registeredCode)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs bg-[#00FF881F] hover:bg-[#00FF8833] text-[#00ff88] border border-[#00FF884D] transition-all cursor-pointer"
+              <h1
+                className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight"
+                style={{
+                  color: "#00d4ff",
+                  textShadow: "0 0 32px #00D4FF80",
+                }}
               >
-                {copiedCode ? (
-                  <>
-                    <Check size={14} /> {t("desktop.affiliatePage.success.copied")}
-                  </>
-                ) : (
-                  <>
-                    <Copy size={14} /> {t("desktop.affiliatePage.success.copyCode")}
-                  </>
-                )}
-              </button>
+                {isSeller
+                  ? t("desktop.affiliatePage.sellerDashboard.title")
+                  : t("desktop.affiliatePage.success.title")}
+              </h1>
+
+              <p className="text-sm sm:text-base leading-relaxed max-w-2xl text-[#E8E8FFB2]">
+                {isSeller
+                  ? t("desktop.affiliatePage.sellerDashboard.subtitle")
+                  : t("desktop.affiliatePage.success.desc")}
+              </p>
             </div>
 
-            {/* Summary Details */}
-            <div className="p-4 rounded-xl bg-bg-dark/60 border border-text-primary/10 text-left text-xs mb-8 space-y-2 text-[#E8E8FFB2]">
-              <div className="flex justify-between">
-                <span>Account Holder:</span>
-                <span className="font-bold text-text-primary">{formData.bankAccountName || formData.fullName}</span>
+            {/* 2-Card Hero Stats Grid (Active Offer Code & Total Commission Earnings) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full text-left">
+              {/* Card 1: Active Offer Code */}
+              <NeonCard glow="cyan" padding="md" className="flex flex-col justify-between gap-4 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-neon-cyan font-bold text-xs uppercase tracking-wider">
+                    <TicketPercent size={15} />
+                    <span>{t("desktop.affiliatePage.sellerDashboard.activeCode")}</span>
+                  </div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-[#00ff88] bg-[#00FF881A] border border-[#00FF8840] px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse"></span>
+                    ACTIVE
+                  </span>
+                </div>
+
+                <div
+                  className="p-3.5 sm:p-4 rounded-xl flex items-center justify-between gap-3 min-h-[64px]"
+                  style={{
+                    background: "#00FF880D",
+                    border: "1px solid #00FF8833",
+                    boxShadow: "0 0 20px #00FF8814",
+                  }}
+                >
+                  <div className="text-xl sm:text-2xl font-mono font-black tracking-wider text-[#00ff88] drop-shadow-[0_0_12px_#00FF8880] select-all min-w-0 break-all flex-1">
+                    {displayOfferCode}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(displayOfferCode)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer shrink-0 ${
+                      copiedCode
+                        ? "bg-[#00FF8833] text-[#00ff88] border border-[#00FF8880] shadow-[0_0_12px_#00FF8840]"
+                        : "bg-[#00FF881F] hover:bg-[#00FF8833] text-[#00ff88] border border-[#00FF884D]"
+                    }`}
+                  >
+                    {copiedCode ? (
+                      <>
+                        <Check size={14} className="shrink-0" />
+                        <span>{t("desktop.affiliatePage.success.copied", { defaultValue: "Copied!" })}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} className="shrink-0" />
+                        <span>{t("desktop.affiliatePage.success.copyCode", { defaultValue: "Copy Code" })}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <p className="text-[11px] text-[#E8E8FF73] leading-relaxed">
+                  {t("desktop.affiliatePage.sellerDashboard.activeCodeDesc")}
+                </p>
+              </NeonCard>
+
+              {/* Card 2: Total Commission Earnings */}
+              <NeonCard glow="purple" padding="md" className="flex flex-col justify-between gap-4 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-neon-purple font-bold text-xs uppercase tracking-wider">
+                    <Wallet size={15} />
+                    <span>{t("desktop.affiliatePage.sellerDashboard.totalEarnings")}</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-[#E8E8FFA6] bg-[#7B2FBE1A] border border-[#7B2FBE33] px-2 py-0.5 rounded-full">
+                    VND
+                  </span>
+                </div>
+
+                <div
+                  className="p-4 rounded-xl flex items-center justify-between gap-3"
+                  style={{
+                    background: "#7B2FBE0F",
+                    border: "1px solid #7B2FBE33",
+                    boxShadow: "0 0 20px #7B2FBE14",
+                  }}
+                >
+                  <div className="text-2xl sm:text-3xl font-mono font-black tracking-widest text-[#00d4ff] drop-shadow-[0_0_12px_#00D4FF80]">
+                    {(currentUser?.totalEarn ?? 0).toLocaleString("vi-VN")} vnd
+                  </div>
+                  <TrendingUp size={24} className="text-[#00ff88] shrink-0" />
+                </div>
+
+                <p className="text-[11px] text-[#E8E8FF73] leading-relaxed">
+                  {t("desktop.affiliatePage.sellerDashboard.totalEarningsDesc")}
+                </p>
+              </NeonCard>
+            </div>
+
+            {/* Active Partner Privileges Grid (3 cols) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full text-left">
+              <div className="p-3.5 rounded-xl bg-[#00D4FF08] border border-[#00D4FF1F]">
+                <div className="flex items-center gap-2 mb-1.5 text-neon-cyan font-bold text-xs">
+                  <Gift size={15} />
+                  <h4>{t("desktop.affiliatePage.sellerDashboard.perk1Title")}</h4>
+                </div>
+                <p className="text-[11px] leading-relaxed text-[#E8E8FF8C]">
+                  {t("desktop.affiliatePage.sellerDashboard.perk1Desc")}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span>Payout Bank:</span>
-                <span className="font-bold text-text-primary">{formData.bankName}</span>
+
+              <div className="p-3.5 rounded-xl bg-[#00D4FF08] border border-[#00D4FF1F]">
+                <div className="flex items-center gap-2 mb-1.5 text-neon-cyan font-bold text-xs">
+                  <Banknote size={15} />
+                  <h4>{t("desktop.affiliatePage.sellerDashboard.perk2Title")}</h4>
+                </div>
+                <p className="text-[11px] leading-relaxed text-[#E8E8FF8C]">
+                  {t("desktop.affiliatePage.sellerDashboard.perk2Desc")}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span>Communication Channels:</span>
-                <span className="font-bold text-neon-cyan">{channels.length} channel(s) registered</span>
+
+              <div className="p-3.5 rounded-xl bg-[#00D4FF08] border border-[#00D4FF1F]">
+                <div className="flex items-center gap-2 mb-1.5 text-neon-cyan font-bold text-xs">
+                  <ShieldCheck size={15} />
+                  <h4>{t("desktop.affiliatePage.sellerDashboard.perk3Title")}</h4>
+                </div>
+                <p className="text-[11px] leading-relaxed text-[#E8E8FF8C]">
+                  {t("desktop.affiliatePage.sellerDashboard.perk3Desc")}
+                </p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-3">
-              <NeonButton variant="primary" onClick={() => navigate("/")}>
+            <div className="flex flex-wrap justify-center gap-3.5 pt-2">
+              <NeonButton variant="primary" size="lg" onClick={() => navigate("/")}>
                 {t("desktop.affiliatePage.success.backHome")}
               </NeonButton>
-              <NeonButton variant="secondary" onClick={() => navigate("/library")}>
+              <NeonButton variant="secondary" size="lg" onClick={() => navigate("/library")}>
                 {t("desktop.affiliatePage.success.goToLibrary")}
               </NeonButton>
               {APP_CONFIG.contact?.discord && (
                 <button
                   type="button"
                   onClick={() => openExternalLink(APP_CONFIG.contact.discord)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-[#E8E8FF8C] hover:text-neon-cyan transition-colors"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-semibold text-[#E8E8FFA6] hover:text-neon-cyan transition-colors bg-[#00D4FF08] border border-[#00D4FF26] hover:border-[#00D4FF59] cursor-pointer"
                 >
-                  <HelpCircle size={14} />
+                  <HelpCircle size={15} />
                   {t("desktop.affiliatePage.success.contactSupport")}
                 </button>
               )}
             </div>
-          </NeonCard>
+          </div>
         ) : (
           <>
             {/* Program Guidelines Section: What You Receive & What You Should Do */}

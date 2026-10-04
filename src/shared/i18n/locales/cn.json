@@ -376,10 +376,26 @@
         "desc": "恭喜您成功提交 Centrix G 官方合作伙伴资料！您的专属优惠码已生成，现在即可开始分享！",
         "yourCode": "您的专属优惠码：",
         "copyCode": "复制优惠码",
-        "copied": "已复制！",
+        "copied": "已复制!",
         "backHome": "返回首页",
         "goToLibrary": "前往游戏库",
         "contactSupport": "需要帮助？加入官方 Discord 交流群"
+      },
+      "sellerDashboard": {
+        "badge": "官方认证分销商 & 合作伙伴",
+        "title": "Seller 联盟伙伴专属面板",
+        "subtitle": "您已成为 Centrix G 官方认证分销商。向玩家社群分享您的专属优惠码，每笔成功订单均可获得自动结算的现金佣金收益。",
+        "activeCode": "当前生效的专属优惠码",
+        "activeCodeDesc": "将此优惠码分享给玩家社群，买家结账立享 9 折优惠，您将实时获得每笔订单的现金佣金。",
+        "totalEarnings": "累计佣金总收益",
+        "totalEarningsDesc": "佣金收益自动直接结算至您绑定的银行账户",
+        "perksTitle": "专属分销商特权",
+        "perk1Title": "买家首单 9 折优惠 (10%)",
+        "perk1Desc": "新用户结账时输入您的优惠码即可立减 10%",
+        "perk2Title": "高额现金分成收益",
+        "perk2Desc": "每笔完成的游戏租赁订单均可实时计提佣金",
+        "perk3Title": "全自动订单追踪",
+        "perk3Desc": "系统全天候精准自动追踪订单并进行结算"
       }
     },
     "forgotPasswordPage": {

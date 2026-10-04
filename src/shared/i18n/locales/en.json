@@ -380,6 +380,22 @@
         "backHome": "Back to Home",
         "goToLibrary": "Go to Library",
         "contactSupport": "Need help? Join Partner Discord"
+      },
+      "sellerDashboard": {
+        "badge": "Official Partner & Seller",
+        "title": "Seller Affiliate Dashboard",
+        "subtitle": "You are an official Centrix G Partner. Share your promo code with the gaming community to earn direct commission on every purchase.",
+        "activeCode": "Your Active Offer Code",
+        "activeCodeDesc": "Share this code with your audience to give them 10% off and earn automatic commissions on every purchase.",
+        "totalEarnings": "Total Commission Earned",
+        "totalEarningsDesc": "Automatic payouts direct to your registered bank account",
+        "perksTitle": "Active Partner Privileges",
+        "perk1Title": "10% Buyer Discount",
+        "perk1Desc": "Your code gives 10% off to first-time customer orders",
+        "perk2Title": "Commission Revenue Share",
+        "perk2Desc": "Earn direct commission credited on every completed order",
+        "perk3Title": "Real-Time Tracking",
+        "perk3Desc": "Instant order conversion and automated reconciliation"
       }
     },
     "forgotPasswordPage": {
