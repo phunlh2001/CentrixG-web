@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import { Utils } from "../utils";
 import {
   ApiError,
   ApiResult,
@@ -11,6 +12,75 @@ const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
 if (!BASE_API_URL) {
   throw new Error("VITE_BASE_API_URL is not defined");
 }
+
+let refreshPromise: Promise<string | null> | null = null;
+
+const executeRefreshToken = async (): Promise<string | null> => {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken =
+    Utils.cookie.read("refreshToken") || localStorage.getItem("refreshToken");
+
+  if (!refreshToken) return null;
+
+  refreshPromise = (async () => {
+    try {
+      const refreshRes = await axios.post(`${BASE_API_URL}/auth/refresh-token`, {
+        refreshToken,
+      });
+      const body = refreshRes.data;
+      const payload = body?.data || body;
+
+      if (payload?.accessToken) {
+        const days = payload.expiresIn ? payload.expiresIn / 86400 || 7 : 7;
+
+        Utils.cookie.create("accessToken", payload.accessToken, days);
+        if (payload.refreshToken) {
+          Utils.cookie.create("refreshToken", payload.refreshToken, days);
+        }
+        if (payload.expiresIn) {
+          Utils.cookie.create("expiresIn", String(payload.expiresIn), days);
+        }
+
+        // Decode user claims from new access token
+        const jwtUser = Utils.jwt.decode(payload.accessToken);
+        if (jwtUser) {
+          const role = (jwtUser.role || "CUSTOMER") as string;
+          const isSeller = role?.toUpperCase() === "SELLER";
+          const totalEarn = jwtUser.affiliate?.totalEarn ?? jwtUser.totalEarn ?? 0;
+          const offerCode = jwtUser.affiliate?.offerCode ?? jwtUser.offerCode ?? null;
+
+          const userObj = {
+            id: jwtUser.id || jwtUser.sub || "",
+            username: jwtUser.username || "",
+            email: jwtUser.email || "",
+            role: role,
+            isBlock: jwtUser.isBlocked ?? jwtUser.isBlock ?? false,
+            isSeller: isSeller,
+            totalEarn: typeof totalEarn === "number" ? totalEarn : Number(totalEarn) || 0,
+            offerCode: offerCode,
+          };
+          Utils.cookie.create("authUser", JSON.stringify(userObj), days);
+        }
+
+        window.dispatchEvent(new Event("auth-session-changed"));
+        return payload.accessToken as string;
+      }
+      return null;
+    } catch {
+      Utils.cookie.clear("accessToken");
+      Utils.cookie.clear("refreshToken");
+      Utils.cookie.clear("expiresIn");
+      Utils.cookie.clear("authUser");
+      window.dispatchEvent(new Event("auth-session-changed"));
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+};
 
 const createInstance = (config: HttpClientConfig = {}): AxiosInstance => {
   const axiosInstance = axios.create({
@@ -33,7 +103,7 @@ const setupInterceptors = (
 ) => {
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = getAccessToken?.();
+      const token = getAccessToken?.() || Utils.cookie.read("accessToken");
       if (token && (config as any).requiresAuth !== false) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -49,34 +119,11 @@ const setupInterceptors = (
 
       if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
         originalRequest._retry = true;
-        const refreshToken =
-          Utils.cookie.read("refreshToken") || localStorage.getItem("refreshToken");
+        const newAccessToken = await executeRefreshToken();
 
-        if (refreshToken) {
-          try {
-            const refreshRes = await axios.post(
-              `${BASE_API_URL}/auth/refresh-token`,
-              { refreshToken },
-            );
-            const body = refreshRes.data;
-            const payload = body?.data || body;
-
-            if (payload?.accessToken) {
-              Utils.cookie.create("accessToken", payload.accessToken, 7);
-              if (payload.refreshToken) {
-                Utils.cookie.create("refreshToken", payload.refreshToken, 7);
-              }
-              if (payload.user) {
-                Utils.cookie.create("authUser", JSON.stringify(payload.user), 7);
-              }
-              originalRequest.headers.Authorization = `Bearer ${payload.accessToken}`;
-              return axiosInstance(originalRequest);
-            }
-          } catch {
-            Utils.cookie.clear("accessToken");
-            Utils.cookie.clear("refreshToken");
-            Utils.cookie.clear("authUser");
-          }
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axiosInstance(originalRequest);
         }
       }
 
@@ -175,8 +222,6 @@ export const createHttpClient = (config: HttpClientConfig = {}) => {
     getAxiosInstance: () => axiosInstance,
   };
 };
-
-import { Utils } from "../utils";
 
 const getAccessToken = () =>
   Utils.cookie.read("accessToken") || localStorage.getItem("accessToken");

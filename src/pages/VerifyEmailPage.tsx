@@ -104,13 +104,14 @@ export default function VerifyEmailPage() {
     setIsSubmitting(true);
 
     try {
-      const session = await storeVerifyCode({ email, code });
+      await storeVerifyCode({ email, code });
       setIsVerified(true);
       localStorage.removeItem("pendingVerifyEmail");
+      const verifiedUser = useAuthStore.getState().user;
       toast.success(
         t("auth.verifySuccess", {
-          username: session.user?.username || email,
-          defaultValue: `Account verified. Welcome, ${session.user?.username || "Player"}!`,
+          username: verifiedUser?.username || email,
+          defaultValue: `Account verified. Welcome, ${verifiedUser?.username || "Player"}!`,
         })
       );
       setTimeout(() => {

@@ -396,6 +396,22 @@
         "perk2Desc": "Nhận hoa hồng trực tiếp trên mỗi giao dịch thành công",
         "perk3Title": "Ghi Nhận Đơn Tức Thì",
         "perk3Desc": "Hệ thống tự động theo dõi và ghi nhận hoa hồng theo thời gian thực"
+      },
+      "pending": {
+        "badge": "Hồ Sơ Đang Xét Duyệt",
+        "title": "Đơn Đăng Ký Đang Được Xem Xét",
+        "subtitle": "Ban quản trị và đội ngũ kiểm duyệt đang xem xét các kênh truyền thông và kế hoạch quảng bá của bạn. Chúng tôi sẽ thông báo ngay khi hồ sơ được phê duyệt.",
+        "step1Title": "1. Đã Gửi Hồ Sơ",
+        "step1Desc": "Thông tin đăng ký và kênh truyền thông đã được tiếp nhận.",
+        "step2Title": "2. Đang Kiểm Duyệt",
+        "step2Desc": "Admin đang xác minh thông tin kênh và kế hoạch quảng bá.",
+        "step3Title": "3. Kích Hoạt Mã Ưu Đãi",
+        "step3Desc": "Mã đối tác sẽ tự động kích hoạt ngay sau khi duyệt.",
+        "reviewNote": "Thời gian xét duyệt thông thường từ 24 – 48 giờ làm việc. Nếu cần hỗ trợ thêm, vui lòng tham gia Discord đối tác của chúng tôi.",
+        "submittedCode": "Mã Đã Đăng Ký:",
+        "backHome": "Về trang chủ",
+        "goToLibrary": "Đến thư viện game",
+        "contactSupport": "Tham gia Discord đối tác"
       }
     },
     "forgotPasswordPage": {

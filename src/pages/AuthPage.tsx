@@ -448,15 +448,16 @@ export default function AuthPage() {
     setIsSubmitting(true);
 
     try {
-      const session = await storeLogin({
+      await storeLogin({
         email: values.email.trim(),
         password: values.password,
       });
 
+      const loggedInUser = useAuthStore.getState().user;
       toast.success(
         t("auth.loginSuccess", {
-          username: session.user?.username || values.email.trim(),
-          defaultValue: `Welcome back, ${session.user?.username || "Player"}!`,
+          username: loggedInUser?.username || values.email.trim(),
+          defaultValue: `Welcome back, ${loggedInUser?.username || "Player"}!`,
         })
       );
       navigate(redirectPath, { replace: true });
@@ -518,14 +519,15 @@ export default function AuthPage() {
     setIsSubmitting(true);
 
     try {
-      const session = await storeVerifyCode({
+      await storeVerifyCode({
         email: pendingVerifyEmail,
         code,
       });
 
+      const verifiedUser = useAuthStore.getState().user;
       toast.success(
         t("auth.verifySuccess", {
-          username: session.user?.username || pendingVerifyEmail,
+          username: verifiedUser?.username || pendingVerifyEmail,
         })
       );
       setPendingVerifyEmail(null);

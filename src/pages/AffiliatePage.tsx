@@ -3,6 +3,7 @@ import {
   Banknote,
   Check,
   CheckCircle2,
+  Clock,
   Copy,
   Gift,
   Globe,
@@ -35,8 +36,10 @@ import { toast } from "react-toastify";
 import {
   AffiliateService,
   IAffiliateApplyPayload,
+  IAffiliateMeResponse,
   ISocialChannel,
 } from "../api/affiliateApi";
+import { AuthService } from "../api/authApi";
 import CentrixMascot from "../assets/centrixg-removebg.png";
 import CentrixLogo from "../assets/centrix-logo.png";
 import MainLayout from "../components/MainLayout";
@@ -77,13 +80,15 @@ const CHANNEL_OPTIONS = [
   { value: "other", icon: <LinkIcon size={15} /> },
 ];
 
+type PageAffiliateStatus = "LOADING" | "PENDING" | "APPROVED" | "REJECTED" | "IDLE";
+
 export default function AffiliatePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, refreshSession } = useAuthStore();
 
-  const isSeller =
-    currentUser?.role?.toUpperCase() === "SELLER" || currentUser?.isSeller === true;
+  const [affiliateStatus, setAffiliateStatus] = useState<PageAffiliateStatus>("LOADING");
+  const [affiliateData, setAffiliateData] = useState<IAffiliateMeResponse | null>(null);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -104,9 +109,45 @@ export default function AffiliatePage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [registeredCode, setRegisteredCode] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Check authorization & fetch affiliate status on mount
+  useEffect(() => {
+    if (!AuthService.isAuthenticated()) {
+      navigate("/auth", { state: { from: { pathname: "/affiliate" } }, replace: true });
+      return;
+    }
+
+    const fetchAffiliateStatus = async () => {
+      try {
+        const data = await AffiliateService.getMe();
+        if (data) {
+          setAffiliateData(data);
+          const normalized = data.status?.toUpperCase();
+          if (normalized === "APPROVED") {
+            setAffiliateStatus("APPROVED");
+            // If user has CUSTOMER role, refresh session to sync updated SELLER role and JWT claims
+            if (currentUser?.role?.toUpperCase() === "CUSTOMER") {
+              refreshSession().catch(() => {});
+            }
+          } else if (normalized === "PENDING") {
+            setAffiliateStatus("PENDING");
+          } else if (normalized === "REJECTED") {
+            setAffiliateStatus("REJECTED");
+          } else {
+            setAffiliateStatus("IDLE");
+          }
+        } else {
+          setAffiliateStatus("IDLE");
+        }
+      } catch {
+        setAffiliateStatus("IDLE");
+      }
+    };
+
+    fetchAffiliateStatus();
+  }, [navigate, currentUser?.role, refreshSession]);
 
   // Initialize pre-filled data from authenticated user
   useEffect(() => {
@@ -246,7 +287,12 @@ export default function AffiliatePage() {
       await AffiliateService.apply(payload);
 
       setRegisteredCode(payload.offerCode);
-      setIsSuccess(true);
+      setAffiliateData({
+        offerCode: payload.offerCode,
+        totalEarn: 0,
+        status: "PENDING",
+      });
+      setAffiliateStatus("PENDING");
       toast.success(t("desktop.affiliatePage.success.title"));
     } catch (err: any) {
       toast.error(err?.message || "Failed to submit affiliate application.");
@@ -265,15 +311,29 @@ export default function AffiliatePage() {
 
   const displayOfferCode =
     registeredCode ||
+    affiliateData?.offerCode ||
     currentUser?.offerCode ||
     formData.offerCode ||
     "PARTNER";
 
+  if (affiliateStatus === "LOADING") {
+    return (
+      <MainLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-fade-in">
+          <LoaderCircle size={42} className="text-neon-cyan animate-spin" />
+          <p className="text-sm font-semibold text-[#E8E8FFA6]">
+            {t("desktop.affiliatePage.form.submitting", { defaultValue: "Loading partner status..." })}
+          </p>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="flex flex-col gap-10 animate-fade-in-up">
-        {/* Header */}
-        {!isSeller && !isSuccess && (
+        {/* Header - shown only for normal registration form */}
+        {affiliateStatus !== "APPROVED" && affiliateStatus !== "PENDING" && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <SectionHeader
               eyebrow={t("desktop.affiliatePage.eyebrow")}
@@ -286,8 +346,8 @@ export default function AffiliatePage() {
           </div>
         )}
 
-        {/* Animated Seller Partner Dashboard / Success View */}
-        {isSeller || isSuccess ? (
+        {/* 1. APPROVED View: Seller Partner Dashboard */}
+        {affiliateStatus === "APPROVED" && (
           <div className="flex flex-col items-center justify-center gap-8 max-w-4xl mx-auto w-full animate-fade-in text-center">
             {/* Floating Hero Visual with ambient radial glow like NotFoundPage */}
             <div className="relative my-2">
@@ -309,9 +369,7 @@ export default function AffiliatePage() {
             <div className="flex flex-col items-center gap-3">
               <NeonBadge color="cyan" dot>
                 <Sparkles size={13} className="text-neon-cyan" />
-                {isSeller
-                  ? t("desktop.affiliatePage.sellerDashboard.badge")
-                  : t("desktop.affiliatePage.badge")}
+                {t("desktop.affiliatePage.sellerDashboard.badge")}
               </NeonBadge>
 
               <h1
@@ -321,15 +379,11 @@ export default function AffiliatePage() {
                   textShadow: "0 0 32px #00D4FF80",
                 }}
               >
-                {isSeller
-                  ? t("desktop.affiliatePage.sellerDashboard.title")
-                  : t("desktop.affiliatePage.success.title")}
+                {t("desktop.affiliatePage.sellerDashboard.title")}
               </h1>
 
               <p className="text-sm sm:text-base leading-relaxed max-w-2xl text-[#E8E8FFB2]">
-                {isSeller
-                  ? t("desktop.affiliatePage.sellerDashboard.subtitle")
-                  : t("desktop.affiliatePage.success.desc")}
+                {t("desktop.affiliatePage.sellerDashboard.subtitle")}
               </p>
             </div>
 
@@ -409,7 +463,7 @@ export default function AffiliatePage() {
                   }}
                 >
                   <div className="text-2xl sm:text-3xl font-mono font-black tracking-widest text-[#00d4ff] drop-shadow-[0_0_12px_#00D4FF80]">
-                    {(currentUser?.totalEarn ?? 0).toLocaleString("vi-VN")} vnd
+                    {(affiliateData?.totalEarn ?? currentUser?.totalEarn ?? 0).toLocaleString("vi-VN")} vnd
                   </div>
                   <TrendingUp size={24} className="text-[#00ff88] shrink-0" />
                 </div>
@@ -473,7 +527,175 @@ export default function AffiliatePage() {
               )}
             </div>
           </div>
-        ) : (
+        )}
+
+        {/* 2. PENDING View: Review Notification & Verification Pipeline */}
+        {affiliateStatus === "PENDING" && (
+          <div className="flex flex-col items-center justify-center gap-8 max-w-4xl mx-auto w-full animate-fade-in text-center">
+            {/* Floating Hero Visual with ambient amber radial glow */}
+            <div className="relative my-2">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: "radial-gradient(circle, #FFA50040, #FF550020, transparent 70%)",
+                  filter: "blur(40px)",
+                }}
+              />
+              <img
+                src={CentrixMascot || CentrixLogo}
+                alt="Centrix G Partner Review"
+                className="relative z-10 w-40 h-40 sm:w-48 sm:h-48 object-contain mx-auto animate-float drop-shadow-[0_0_32px_#FFA50080]"
+              />
+            </div>
+
+            {/* Title & Badge */}
+            <div className="flex flex-col items-center gap-3">
+              <NeonBadge color="amber" dot>
+                <Clock size={13} className="text-amber-400" />
+                {t("desktop.affiliatePage.pending.badge")}
+              </NeonBadge>
+
+              <h1
+                className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-amber-400"
+                style={{
+                  textShadow: "0 0 32px #FFA50080",
+                }}
+              >
+                {t("desktop.affiliatePage.pending.title")}
+              </h1>
+
+              <p className="text-sm sm:text-base leading-relaxed max-w-2xl text-[#E8E8FFB2]">
+                {t("desktop.affiliatePage.pending.subtitle")}
+              </p>
+            </div>
+
+            {/* 2-Card Status Grid (Submitted Code & 3-Step Verification Timeline) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full text-left">
+              {/* Card 1: Submitted Offer Code */}
+              <NeonCard glow="none" padding="md" className="flex flex-col justify-between gap-4 relative overflow-hidden border-[#FFA50040] shadow-[0_0_24px_#FFA50014]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                    <TicketPercent size={15} />
+                    <span>{t("desktop.affiliatePage.pending.submittedCode")}</span>
+                  </div>
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-[#FFA5001A] border border-[#FFA50040] px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                    UNDER REVIEW
+                  </span>
+                </div>
+
+                <div
+                  className="p-3.5 sm:p-4 rounded-xl flex items-center justify-between gap-3 min-h-[64px]"
+                  style={{
+                    background: "#FFA5000D",
+                    border: "1px solid #FFA50033",
+                    boxShadow: "0 0 20px #FFA50014",
+                  }}
+                >
+                  <div className="text-xl sm:text-2xl font-mono font-black tracking-wider text-amber-400 drop-shadow-[0_0_12px_#FFA50080] select-all min-w-0 break-all flex-1">
+                    {displayOfferCode}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(displayOfferCode)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer shrink-0 ${
+                      copiedCode
+                        ? "bg-[#FFA50033] text-amber-400 border border-[#FFA50080] shadow-[0_0_12px_#FFA50040]"
+                        : "bg-[#FFA5001F] hover:bg-[#FFA50033] text-amber-400 border border-[#FFA5004D]"
+                    }`}
+                  >
+                    {copiedCode ? (
+                      <>
+                        <Check size={14} className="shrink-0" />
+                        <span>{t("desktop.affiliatePage.success.copied", { defaultValue: "Copied!" })}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} className="shrink-0" />
+                        <span>{t("desktop.affiliatePage.success.copyCode", { defaultValue: "Copy Code" })}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <p className="text-[11px] text-[#E8E8FF73] leading-relaxed">
+                  {t("desktop.affiliatePage.pending.reviewNote")}
+                </p>
+              </NeonCard>
+
+              {/* Card 2: 3-Step Verification Pipeline */}
+              <NeonCard glow="cyan" padding="md" className="flex flex-col justify-between gap-4">
+                <div className="flex items-center gap-2 text-neon-cyan font-bold text-xs uppercase tracking-wider">
+                  <Sparkles size={15} />
+                  <span>Application Progress</span>
+                </div>
+
+                <div className="flex flex-col gap-3 py-1">
+                  {/* Step 1: Completed */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#00FF8826] border border-[#00FF8866] text-[#00ff88] flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-[#F4F4F6]">{t("desktop.affiliatePage.pending.step1Title")}</div>
+                      <div className="text-[11px] text-[#E8E8FF8C]">{t("desktop.affiliatePage.pending.step1Desc")}</div>
+                    </div>
+                  </div>
+
+                  {/* Step 2: In Progress (Amber) */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#FFA50026] border border-[#FFA50080] text-amber-400 flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
+                      <Clock size={13} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-amber-300">{t("desktop.affiliatePage.pending.step2Title")}</div>
+                      <div className="text-[11px] text-[#E8E8FF8C]">{t("desktop.affiliatePage.pending.step2Desc")}</div>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Upcoming */}
+                  <div className="flex items-start gap-3 opacity-60">
+                    <div className="w-6 h-6 rounded-full bg-[#E8E8FF1A] border border-[#E8E8FF33] text-[#E8E8FFA6] flex items-center justify-center shrink-0 mt-0.5">
+                      <Sparkles size={13} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-[#E8E8FFB2]">{t("desktop.affiliatePage.pending.step3Title")}</div>
+                      <div className="text-[11px] text-[#E8E8FF73]">{t("desktop.affiliatePage.pending.step3Desc")}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-[#E8E8FF73] pt-1 border-t border-[#00D4FF1F]">
+                  Status: <span className="font-bold text-amber-400">PENDING_REVIEW</span>
+                </div>
+              </NeonCard>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-3.5 pt-2">
+              <NeonButton variant="primary" size="lg" onClick={() => navigate("/")}>
+                {t("desktop.affiliatePage.pending.backHome")}
+              </NeonButton>
+              <NeonButton variant="secondary" size="lg" onClick={() => navigate("/library")}>
+                {t("desktop.affiliatePage.pending.goToLibrary")}
+              </NeonButton>
+              {APP_CONFIG.contact?.discord && (
+                <button
+                  type="button"
+                  onClick={() => openExternalLink(APP_CONFIG.contact.discord)}
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-semibold text-[#E8E8FFA6] hover:text-neon-cyan transition-colors bg-[#00D4FF08] border border-[#00D4FF26] hover:border-[#00D4FF59] cursor-pointer"
+                >
+                  <HelpCircle size={15} />
+                  {t("desktop.affiliatePage.pending.contactSupport")}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Normal Form View: Rendered when REJECTED or IDLE (Not yet registered or Rejected) */}
+        {affiliateStatus !== "APPROVED" && affiliateStatus !== "PENDING" && (
           <>
             {/* Program Guidelines Section: What You Receive & What You Should Do */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

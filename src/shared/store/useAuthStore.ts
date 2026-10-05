@@ -6,6 +6,7 @@ import {
   ILoginPayload,
   IRegisterPayload,
   IVerifyCodePayload,
+  parseUserFromToken,
 } from "../../api/authApi";
 import { Utils } from "../utils";
 
@@ -13,7 +14,6 @@ export const COOKIE_KEYS = {
   accessToken: "accessToken",
   refreshToken: "refreshToken",
   expiresIn: "expiresIn",
-  expiresAt: "tokenExpiresAt",
   user: "authUser",
 } as const;
 
@@ -31,11 +31,21 @@ export interface AuthState {
   login: (payload: ILoginPayload) => Promise<IAuthResponse>;
   register: (payload: IRegisterPayload) => Promise<{ message: string }>;
   verifyCode: (payload: IVerifyCodePayload) => Promise<IAuthResponse>;
+  refreshSession: () => Promise<IAuthResponse>;
   logout: () => Promise<void>;
   checkAuth: () => boolean;
 }
 
+const getInitialToken = (): string | null => {
+  return Utils.cookie.read(COOKIE_KEYS.accessToken);
+};
+
 const getInitialUser = (): IAuthUser | null => {
+  const token = getInitialToken();
+  if (token) {
+    const user = parseUserFromToken(token);
+    if (user) return user;
+  }
   try {
     const raw = Utils.cookie.read(COOKIE_KEYS.user);
     if (raw) {
@@ -51,23 +61,10 @@ const getInitialUser = (): IAuthUser | null => {
   return null;
 };
 
-const getInitialToken = (): string | null => {
-  return Utils.cookie.read(COOKIE_KEYS.accessToken);
-};
-
 const isTokenValid = (): boolean => {
   const token = getInitialToken();
   const user = getInitialUser();
-  if (!token || !user) return false;
-
-  const expiresAt = Utils.cookie.read(COOKIE_KEYS.expiresAt);
-  if (expiresAt) {
-    const expiresAtNum = Number(expiresAt);
-    if (!isNaN(expiresAtNum) && Date.now() >= expiresAtNum) {
-      return false;
-    }
-  }
-  return true;
+  return Boolean(token && user);
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -80,7 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setSession: (session: IAuthResponse) => {
     const days = session.expiresIn ? session.expiresIn / 86400 || 7 : 7;
-    const expiresAt = Date.now() + (session.expiresIn || 900) * 1000;
+    const user = parseUserFromToken(session.accessToken);
 
     if (session.accessToken) {
       Utils.cookie.create(COOKIE_KEYS.accessToken, session.accessToken, days);
@@ -90,18 +87,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     if (session.expiresIn) {
       Utils.cookie.create(COOKIE_KEYS.expiresIn, String(session.expiresIn), days);
-      Utils.cookie.create(COOKIE_KEYS.expiresAt, String(expiresAt), days);
     }
-    if (session.user) {
-      Utils.cookie.create(COOKIE_KEYS.user, JSON.stringify(session.user), days);
+    if (user) {
+      Utils.cookie.create(COOKIE_KEYS.user, JSON.stringify(user), days);
     }
 
     set({
       accessToken: session.accessToken,
       refreshToken: session.refreshToken,
       expiresIn: session.expiresIn,
-      user: session.user,
-      isAuthenticated: true,
+      user: user,
+      isAuthenticated: Boolean(user && session.accessToken),
     });
 
     window.dispatchEvent(new Event("auth-session-changed"));
@@ -111,7 +107,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     Utils.cookie.clear(COOKIE_KEYS.accessToken);
     Utils.cookie.clear(COOKIE_KEYS.refreshToken);
     Utils.cookie.clear(COOKIE_KEYS.expiresIn);
-    Utils.cookie.clear(COOKIE_KEYS.expiresAt);
     Utils.cookie.clear(COOKIE_KEYS.user);
 
     set({
@@ -149,6 +144,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       const session = await AuthService.verifyCode(payload);
+      get().setSession(session);
+      return session;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  refreshSession: async () => {
+    set({ isLoading: true });
+    try {
+      const session = await AuthService.refreshToken();
       get().setSession(session);
       return session;
     } finally {

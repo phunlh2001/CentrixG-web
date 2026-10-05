@@ -396,6 +396,22 @@
         "perk2Desc": "每笔完成的游戏租赁订单均可实时计提佣金",
         "perk3Title": "全自动订单追踪",
         "perk3Desc": "系统全天候精准自动追踪订单并进行结算"
+      },
+      "pending": {
+        "badge": "申请审核中",
+        "title": "您的联盟伙伴申请正在审核中",
+        "subtitle": "我们的管理员团队正在审核您提交的推广渠道与合作计划。审核通过后将第一时间为您激活专属优惠码与收益权益。",
+        "step1Title": "1. 申请已提交",
+        "step1Desc": "已成功接收您的合作伙伴资料与渠道信息。",
+        "step2Title": "2. 管理员审核中",
+        "step2Desc": "正在验证您的推广平台及过往成绩资料。",
+        "step3Title": "3. 审核通过即上线",
+        "step3Desc": "审核通过后专属优惠码将自动生效。",
+        "reviewNote": "审核通常需要 24 – 48 个工作小时。如有疑问，欢迎加入官方 Discord 社区咨询。",
+        "submittedCode": "已申请优惠码：",
+        "backHome": "返回首页",
+        "goToLibrary": "前往游戏库",
+        "contactSupport": "加入官方 Discord"
       }
     },
     "forgotPasswordPage": {

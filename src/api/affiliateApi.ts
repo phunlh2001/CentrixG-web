@@ -28,6 +28,15 @@ export interface IAffiliateApplyResponse {
   [key: string]: any;
 }
 
+export type AffiliateStatus = "PENDING" | "APPROVED" | "REJECTED" | string;
+
+export interface IAffiliateMeResponse {
+  offerCode: string | null;
+  totalEarn: number;
+  status: AffiliateStatus;
+  [key: string]: any;
+}
+
 // Backward compatibility alias
 export type IAffiliateRegisterPayload = IAffiliateApplyPayload;
 export type IAffiliateRegisterResponse = IAffiliateApplyResponse;
@@ -50,6 +59,19 @@ export const AffiliateService = {
       );
     }
   },
+
+  getMe: async (): Promise<IAffiliateMeResponse | null> => {
+    try {
+      const response = await HttpClient.get<IAffiliateMeResponse>(`${BASE_URL}/me`);
+      if (response && response.data) {
+        return response.data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
   register: async (
     payload: IAffiliateApplyPayload
   ): Promise<BaseApiResponse<IAffiliateApplyResponse> | undefined> => {

@@ -9,7 +9,6 @@ export const AUTH_STORAGE_KEYS = {
   accessToken: "accessToken",
   refreshToken: "refreshToken",
   expiresIn: "expiresIn",
-  expiresAt: "tokenExpiresAt",
   user: "authUser",
 } as const;
 
@@ -30,8 +29,68 @@ export interface IAuthResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  user: IAuthUser;
 }
+
+export interface IJwtAffiliate {
+  totalEarn?: number;
+  offerCode?: string | null;
+}
+
+export interface IJwtPayload {
+  sub?: string;
+  id?: string;
+  username?: string;
+  email?: string;
+  role?: AuthUserRole;
+  isBlocked?: boolean;
+  isBlock?: boolean;
+  affiliate?: IJwtAffiliate;
+  totalEarn?: number;
+  offerCode?: string | null;
+  exp?: number;
+  iat?: number;
+  [key: string]: any;
+}
+
+export const decodeJwt = (token: string): IJwtPayload | null => {
+  if (!token || typeof token !== "string") return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload) as IJwtPayload;
+  } catch {
+    return null;
+  }
+};
+
+export const parseUserFromToken = (token: string): IAuthUser | null => {
+  const payload = decodeJwt(token);
+  if (!payload) return null;
+
+  const role = (payload.role || "CUSTOMER") as AuthUserRole;
+  const isSeller = role?.toUpperCase() === "SELLER";
+  const totalEarn = payload.affiliate?.totalEarn ?? payload.totalEarn ?? 0;
+  const offerCode = payload.affiliate?.offerCode ?? payload.offerCode ?? null;
+
+  return {
+    id: payload.id || payload.sub || "",
+    username: payload.username || "",
+    email: payload.email || "",
+    role: role,
+    isBlock: payload.isBlocked ?? payload.isBlock ?? false,
+    isSeller: isSeller,
+    totalEarn: typeof totalEarn === "number" ? totalEarn : Number(totalEarn) || 0,
+    offerCode: offerCode,
+  };
+};
 
 export interface IMessageResponse {
   message: string;
@@ -61,33 +120,30 @@ export interface IRevokeTokenPayload {
   refreshToken: string;
 }
 
-const saveSession = (session: IAuthResponse) => {
+export const saveSession = (session: IAuthResponse) => {
   if (!session) return;
   const days = session.expiresIn ? session.expiresIn / 86400 || 7 : 7;
-  const expiresAt = Date.now() + (session.expiresIn || 900) * 1000;
 
   if (session.accessToken) {
     Utils.cookie.create(AUTH_STORAGE_KEYS.accessToken, session.accessToken, days);
+    const user = parseUserFromToken(session.accessToken);
+    if (user) {
+      Utils.cookie.create(AUTH_STORAGE_KEYS.user, JSON.stringify(user), days);
+    }
   }
   if (session.refreshToken) {
     Utils.cookie.create(AUTH_STORAGE_KEYS.refreshToken, session.refreshToken, days);
   }
   if (session.expiresIn) {
     Utils.cookie.create(AUTH_STORAGE_KEYS.expiresIn, String(session.expiresIn), days);
-    Utils.cookie.create(AUTH_STORAGE_KEYS.expiresAt, String(expiresAt), days);
-  }
-  if (session.user) {
-    session.user.isSeller = session.user.role === "SELLER";
-    Utils.cookie.create(AUTH_STORAGE_KEYS.user, JSON.stringify(session.user), days);
   }
   window.dispatchEvent(new Event("auth-session-changed"));
 };
 
-const clearSession = () => {
+export const clearSession = () => {
   Utils.cookie.clear(AUTH_STORAGE_KEYS.accessToken);
   Utils.cookie.clear(AUTH_STORAGE_KEYS.refreshToken);
   Utils.cookie.clear(AUTH_STORAGE_KEYS.expiresIn);
-  Utils.cookie.clear(AUTH_STORAGE_KEYS.expiresAt);
   Utils.cookie.clear(AUTH_STORAGE_KEYS.user);
   window.dispatchEvent(new Event("auth-session-changed"));
 };
@@ -171,7 +227,14 @@ export const AuthService = {
   },
 
   getCurrentUser: (): IAuthUser | null => {
+    const token = AuthService.getAccessToken();
+    if (!token) return null;
+
     if (!AuthService.isAuthenticated()) return null;
+
+    // Parse user directly from current access token
+    const userFromToken = parseUserFromToken(token);
+    if (userFromToken) return userFromToken;
 
     try {
       const rawCookie = Utils.cookie.read(AUTH_STORAGE_KEYS.user);
@@ -199,15 +262,6 @@ export const AuthService = {
   isAuthenticated: (): boolean => {
     const token = AuthService.getAccessToken();
     if (!token) return false;
-
-    const expiresAt =
-      Utils.cookie.read(AUTH_STORAGE_KEYS.expiresAt) || localStorage.getItem(AUTH_STORAGE_KEYS.expiresAt);
-    if (expiresAt) {
-      const expiresAtNum = Number(expiresAt);
-      if (!isNaN(expiresAtNum) && Date.now() >= expiresAtNum) {
-        return false;
-      }
-    }
 
     return true;
   },

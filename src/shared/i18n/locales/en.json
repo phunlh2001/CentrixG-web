@@ -396,6 +396,22 @@
         "perk2Desc": "Earn direct commission credited on every completed order",
         "perk3Title": "Real-Time Tracking",
         "perk3Desc": "Instant order conversion and automated reconciliation"
+      },
+      "pending": {
+        "badge": "Application Under Review",
+        "title": "Your Application is Under Review",
+        "subtitle": "Our admin and moderation team are currently reviewing your channels and promotion strategy. We will notify you once your partner status is activated.",
+        "step1Title": "1. Application Submitted",
+        "step1Desc": "Your partner profile and channel details were received.",
+        "step2Title": "2. Admin Verification",
+        "step2Desc": "Moderators are verifying your channels and promotion plan.",
+        "step3Title": "3. Activation & Code Ready",
+        "step3Desc": "Your custom code will be live upon approval.",
+        "reviewNote": "Verification typically takes 24 – 48 business hours. If you have any questions, feel free to contact us on Discord.",
+        "submittedCode": "Submitted Custom Code:",
+        "backHome": "Back to Home",
+        "goToLibrary": "Go to Library",
+        "contactSupport": "Join Partner Discord"
       }
     },
     "forgotPasswordPage": {
