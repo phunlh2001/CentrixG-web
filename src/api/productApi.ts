@@ -104,6 +104,7 @@ export const ProductService = {
       const response = await HttpClient.get<IPaginatedProducts>(BASE_URL, {
         params: {
           page,
+          newest: true,
           ...(limit !== undefined ? { limit } : {}),
           ...(searchQuery?.trim() ? { search: searchQuery.trim() } : {}),
           ...(orderByPrice ? { orderByPrice } : {}),
