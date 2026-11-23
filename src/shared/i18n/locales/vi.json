@@ -19,6 +19,7 @@
       "searchPlaceholder": "Tìm kiếm sản phẩm",
       "totalEarn": "tổng thu nhập: {{amount}} vnd",
       "totalEarnLabel": "tổng thu nhập:",
+      "reload": "Tải lại",
       "navLinks": {
         "home": "Trang chủ",
         "introduction": "Giới thiệu",

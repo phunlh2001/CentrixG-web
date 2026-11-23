@@ -1,5 +1,5 @@
-import { BookOpen, ChevronDown, LogOut, Menu, ShoppingCart, User } from "lucide-react";
-import { useEffect } from "react";
+import { BookOpen, ChevronDown, LogOut, Menu, RotateCw, ShoppingCart, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../assets/centrix-logo.png";
@@ -22,6 +22,23 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
   const navigate = useNavigate();
   const { user: currentUser, isAuthenticated, logout: storeLogout, checkAuth } = useAuthStore();
   const { itemCount } = useCart();
+
+  const isDesktop =
+    import.meta.env.VITE_APP_TARGET === "desktop" ||
+    Boolean(window.centrixDesktop?.isDesktop);
+
+  const [isReloading, setIsReloading] = useState(false);
+
+  const handleReload = () => {
+    setIsReloading(true);
+    setTimeout(() => {
+      if (window.centrixDesktop?.reloadApp) {
+        window.centrixDesktop.reloadApp();
+      } else {
+        window.location.reload();
+      }
+    }, 120);
+  };
 
   const handleSwitchToLanguage = (lang: LanguageCode) => {
     localStorage.setItem("lang", lang);
@@ -75,7 +92,7 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
       }}
     >
       <div className="flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl h-16">
-        {/* Left: hamburger + logo */}
+        {/* Left: hamburger + logo + desktop reload */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => toggleMenu?.()}
@@ -107,6 +124,22 @@ export default function Header({ menu, toggleMenu }: HeaderProps) {
               {APP_CONFIG.name}
             </span>
           </Link>
+
+          {isDesktop && (
+            <button
+              type="button"
+              onClick={handleReload}
+              disabled={isReloading}
+              title={t("desktop.header.reload", { defaultValue: "Reload (F5)" })}
+              aria-label="Reload application"
+              className="flex justify-center items-center bg-[#00D4FF0F] hover:bg-[#00D4FF1F] border border-[#00D4FF26] hover:border-[#00D4FF59] hover:shadow-[0_0_12px_#00D4FF40] rounded-lg w-9 h-9 text-[#E8E8FFB2] hover:text-[#00d4ff] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait"
+            >
+              <RotateCw
+                size={16}
+                className={isReloading ? "animate-spin text-neon-cyan" : "transition-transform"}
+              />
+            </button>
+          )}
         </div>
 
         {/* Center: nav links */}

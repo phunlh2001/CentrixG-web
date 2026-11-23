@@ -19,6 +19,7 @@
       "searchPlaceholder": "Search products",
       "totalEarn": "total earn: {{amount}} vnd",
       "totalEarnLabel": "total earn:",
+      "reload": "Reload",
       "navLinks": {
         "home": "Home",
         "introduction": "Introduction",

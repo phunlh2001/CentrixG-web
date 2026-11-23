@@ -25,6 +25,7 @@ interface Window {
   centrixDesktop?: {
     isDesktop: boolean;
     platform: string;
+    reloadApp?: () => Promise<void>;
     installApp?: (
       token: string,
       appId: number | string,

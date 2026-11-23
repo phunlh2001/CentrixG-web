@@ -185,6 +185,13 @@ ipcMain.handle("quit-and-install", () => {
   autoUpdater.quitAndInstall(false, true);
 });
 
+ipcMain.handle("reload-window", (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender) || mainWindow;
+  if (win && !win.isDestroyed()) {
+    win.webContents.reload();
+  }
+});
+
 autoUpdater.on("update-available", (info) => {
   console.log("[AutoUpdater] Update available:", info.version);
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -279,6 +286,20 @@ app.whenReady().then(async () => {
     const window = BrowserWindow.getFocusedWindow();
     if (window) {
       window.webContents.toggleDevTools();
+    }
+  });
+
+  // F5 & Ctrl+R to reload focused window
+  globalShortcut.register("F5", () => {
+    const window = BrowserWindow.getFocusedWindow();
+    if (window && !window.isDestroyed()) {
+      window.webContents.reload();
+    }
+  });
+  globalShortcut.register("CommandOrControl+R", () => {
+    const window = BrowserWindow.getFocusedWindow();
+    if (window && !window.isDestroyed()) {
+      window.webContents.reload();
     }
   });
 

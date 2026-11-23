@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from "electron";
 contextBridge.exposeInMainWorld("centrixDesktop", {
   isDesktop: true,
   platform: process.platform,
+  reloadApp: () => ipcRenderer.invoke("reload-window"),
   installApp: (token: string, appId: number | string, type?: string | null) =>
     ipcRenderer.invoke("install-app", token, appId, type),
   checkForUpdates: () => ipcRenderer.invoke("check-for-update"),
